@@ -267,4 +267,31 @@ export interface RandomSeedOptions {
 /** Sort order for palettes. */
 export type SortOrder = "lightness-asc" | "lightness-desc" | "chroma-asc" | "chroma-desc";
 
+/** Result of inferring a seed color from an imported palette. */
+export interface InferredSeed {
+  /** The hex color from the source palette closest to a generated 500 stop. */
+  seed: string;
+  /** The palette stop (50–950) the seed was inferred from. */
+  fromStop: number;
+  /**
+   * The ∆E2000 between the inferred seed's generated palette and the source
+   * palette, averaged across all matching stops. Lower = better fit.
+   */
+  averageDeltaE: number;
+  /** The full palette regenerated from the inferred seed. */
+  palette: Palette;
+}
+
+/** Result of importing a palette from a string source (CSS / Tailwind). */
+export interface ImportedPalette {
+  /** The format the input was parsed as. */
+  format: "css" | "tailwind" | "json";
+  /** The recognized palette name (e.g. "primary"), or "color" if none found. */
+  name: string;
+  /** The parsed palette, keyed by stop. Missing stops are omitted. */
+  colors: Partial<Palette>;
+  /** The stops that were successfully parsed. */
+  stops: number[];
+}
+
 

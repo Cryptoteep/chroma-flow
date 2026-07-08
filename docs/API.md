@@ -16,6 +16,7 @@ tree-shakeable ESM exports and have zero runtime dependencies.
 - [Delta-E ∆E2000](#delta-e-e2000)
 - [Color manipulation](#color-manipulation)
 - [Palette utilities](#palette-utilities)
+- [Palette import & seed inference](#palette-import--seed-inference)
 - [Exporters](#exporters)
 - [Types](#types)
 
@@ -371,6 +372,55 @@ previews.
 
 ---
 
+## Palette import & seed inference
+
+The reverse of the export pipeline: parse an existing palette back into a
+chroma-flow seed, so you can reverse-engineer a design system and continue
+tweaking it with the generator.
+
+### `parseCSSPalette(css)`
+
+Recognize `--name-NNN: #hex;` declarations and map the trailing number to a
+palette stop. The palette name is the variable prefix before the stop number.
+
+```ts
+parseCSSPalette(`:root { --brand-500: #6366f1; --brand-600: #3f37bb; }`);
+// { format: "css", name: "brand", colors: { 500: "#6366f1", 600: "#3f37bb" }, stops: [500, 600] }
+```
+
+### `parseTailwindPalette(config)`
+
+Recognize `NNN: "#hex"` entries inside a named color object in a Tailwind
+config fragment.
+
+### `parseJSONPalette(json)`
+
+Parse a `{ "500": "#hex", … }` JSON object.
+
+### `parsePalette(input)`
+
+Auto-detect the format and parse. Falls back to a raw hex scan (assigning
+hexes to stops in order) if no structured format is recognized.
+
+### `inferSeed(imported)`
+
+Find the seed color that best reproduces an imported palette. For each stop in
+the source, it treats that stop's hex as a candidate seed, generates a full
+palette, and measures the average ∆E2000 across shared stops. The candidate
+with the lowest average ∆E wins.
+
+```ts
+const { seed, fromStop, averageDeltaE, palette } = inferSeed(imported);
+// { seed: "#6366f1", fromStop: 500, averageDeltaE: 0.187, palette: {…} }
+```
+
+### `importAndInfer(input)`
+
+Convenience: parse a string and return both the imported palette and the
+inferred seed in one call.
+
+---
+
 ## Exporters
 
 ### `exportPalette(palette, format, name?)`
@@ -398,4 +448,5 @@ All types are exported from the package root: `RGB`, `OKLCH`, `OKLab`,
 `PaletteStop`, `Palette`, `GenerateOptions`, `WCAGLevel`, `ContrastResult`,
 `CVDType`, `CVDPreview`, `ExportFormat`, `APHAResult`, `SemanticTheme`,
 `ThemeAudit`, `ThemePair`, `HarmonyScheme`, `HarmonyColor`, `Harmony`,
-`DeltaEResult`, `DeltaEMethod`, `RandomSeedOptions`, `SortOrder`.
+`DeltaEResult`, `DeltaEMethod`, `RandomSeedOptions`, `SortOrder`,
+`InferredSeed`, `ImportedPalette`.

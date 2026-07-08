@@ -29,6 +29,8 @@ export type {
   DeltaEResult,
   RandomSeedOptions,
   SortOrder,
+  InferredSeed,
+  ImportedPalette,
 } from "./types";
 
 export {
@@ -141,5 +143,14 @@ export {
   paletteToGradient,
 } from "./palette-utils";
 
+export {
+  parseCSSPalette,
+  parseTailwindPalette,
+  parseJSONPalette,
+  parsePalette,
+  inferSeed,
+  importAndInfer,
+} from "./palette-import";
+
 /** Library version. */
-export const VERSION = "0.5.0";
+export const VERSION = "0.6.0";

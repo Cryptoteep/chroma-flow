@@ -11,6 +11,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Live web playground (in-repo, GitHub Pages)
 - Figma plugin
 
+## [0.6.0] - 2025-02-12
+
+### Added
+- 📥 **Palette import & seed inference** (`parseCSSPalette`,
+  `parseTailwindPalette`, `parseJSONPalette`, `parsePalette`, `inferSeed`,
+  `importAndInfer`) — the reverse of the export pipeline. Parse an existing
+  palette from a CSS-variables block, a Tailwind config fragment, or JSON,
+  then infer the seed color that would reproduce it most closely (lowest
+  average ∆E2000 across shared stops).
+- 🖥️ CLI flags `--import <string>` and `--infer-seed`.
+- `VERSION` bumped to `0.6.0`.
+
+### Changed
+- `InferredSeed`, `ImportedPalette` types exported from root.
+- New `src/palette-import.ts` module.
+
 ## [0.5.0] - 2025-02-05
 
 ### Added

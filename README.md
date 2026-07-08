@@ -41,6 +41,7 @@ ad-supported, or acquired.
 - 📐 **Delta-E ∆E76 / ∆E94 / ∆E2000** — three CIE color-difference metrics (from fast Euclidean to perceptually-accurate CIEDE2000) with a human-readable band and a nearest-color finder.
 - 🎛️ **Color manipulation** — mix, lighten, darken, saturate, rotate hue, complement, invert, and random-seed generation in OKLCH.
 - 🧰 **Palette utilities** — interpolate midpoints, sort by lightness/chroma, reverse, or emit a CSS gradient.
+- 📥 **Palette import & seed inference** — parse an existing CSS / Tailwind / JSON palette back into a chroma-flow seed, so you can reverse-engineer a design system and keep tweaking.
 - 👁️ **Color-blind simulation** — protanopia, deuteranopia, tritanopia, achromatopsia.
 - 🎯 **Smart text-color suggestion** — auto-pick black or white text for any background.
 - 📤 **Eight export formats** — CSS variables, Tailwind config, JSON, SCSS, SVG swatch sheets, Android `colors.xml`, SwiftUI `Color`, Jetpack Compose `Color`.
@@ -140,6 +141,14 @@ import { interpolatePalette, reversePalette, paletteToGradient } from "chroma-fl
 const dense = interpolatePalette(palette);   // 21 steps (11 + 10 mids)
 const inverted = reversePalette(palette);    // 50 ↔ 950
 const gradient = paletteToGradient(palette); // "linear-gradient(to right, …)"
+
+// 12. (v0.6) Import an existing palette and infer its seed.
+import { importAndInfer } from "chroma-flow";
+const css = `:root { --brand-500: #6366f1; --brand-600: #3f37bb; }`;
+const { inferred } = importAndInfer(css);
+console.log(inferred.seed);         // "#6366f1"
+console.log(inferred.averageDeltaE); // ~0.19 (lower = better fit)
+console.log(inferred.palette[500]);  // regenerated from the inferred seed
 ```
 
 ### CLI
@@ -188,6 +197,9 @@ chroma-flow --random
 chroma-flow "#6366f1" --interpolate
 chroma-flow "#6366f1" --reverse
 chroma-flow "#6366f1" --gradient
+
+# Import an existing palette and infer its seed (v0.6)
+chroma-flow --import ":root { --brand-500: #6366f1; }" --infer-seed
 
 # Simulate color vision deficiencies
 chroma-flow "#6366f1" --cvd
@@ -273,6 +285,7 @@ Please review our [Code of Conduct](CODE_OF_CONDUCT.md) before participating.
 - [x] ~~Delta-E ∆E2000 color difference helper~~ — shipped in v0.3.0
 - [x] ~~Color manipulation & palette utilities~~ — shipped in v0.4.0
 - [x] ~~∆E76 and ∆E94 metrics~~ — shipped in v0.5.0
+- [x] ~~Palette import & seed inference~~ — shipped in v0.6.0
 - [ ] Live web playground (in-repo, deployed to GitHub Pages)
 - [ ] ESM + CJS dual build
 - [ ] Figma plugin

@@ -54,6 +54,8 @@ import {
   interpolatePalette,
   reversePalette,
   paletteToGradient,
+  parsePalette,
+  inferSeed,
   type HarmonyScheme,
   type DeltaEMethod,
 } from "../src/index";
@@ -82,6 +84,8 @@ interface ParsedArgs {
   interpolate: boolean;
   reverse: boolean;
   gradient: boolean;
+  importString: string | null;
+  inferSeedFlag: boolean;
   distribution: "linear" | "perceptual";
   hueShift: number;
   chromaFalloff: number;
@@ -113,6 +117,8 @@ function parseArgs(argv: string[]): ParsedArgs {
     interpolate: false,
     reverse: false,
     gradient: false,
+    importString: null,
+    inferSeedFlag: false,
     distribution: "perceptual",
     hueShift: 0,
     chromaFalloff: 0.5,
@@ -210,6 +216,13 @@ function parseArgs(argv: string[]): ParsedArgs {
       case "--gradient":
         args.gradient = true;
         break;
+      case "--import":
+        args.importString = next;
+        i++;
+        break;
+      case "--infer-seed":
+        args.inferSeedFlag = true;
+        break;
       case "--distribution":
         args.distribution = next === "linear" ? "linear" : "perceptual";
         i++;
@@ -260,6 +273,8 @@ OPTIONS
       --interpolate      print the palette with interpolated midpoints (21 steps)
       --reverse          print the palette reversed (50 ↔ 950)
       --gradient         print a CSS linear-gradient from the palette
+      --import <string>  parse a palette from a CSS/Tailwind/JSON string
+      --infer-seed       with --import, infer the seed that best reproduces the palette
       --cvd              simulate color vision deficiencies on the seed
       --theme            generate a coordinated light + dark theme pair (CSS)
       --distribution     linear | perceptual (default: perceptual)
@@ -283,6 +298,7 @@ EXAMPLES
   chroma-flow "#6366f1" --lighten 0.15
   chroma-flow "#6366f1" --interpolate
   chroma-flow "#6366f1" --gradient
+  chroma-flow --import ":root { --brand-500: #6366f1; }" --infer-seed
   chroma-flow "#6366f1" --theme
   chroma-flow "#f59e0b" --cvd
 `.trim();
@@ -302,6 +318,28 @@ function main() {
 
   if (args.help) {
     console.log(HELP);
+    return;
+  }
+
+  if (args.importString) {
+    const imported = parsePalette(args.importString);
+    if (imported.stops.length === 0) {
+      console.error("No palette stops recognized in the input.");
+      process.exit(1);
+    }
+    console.log(`Imported   ${imported.format} palette "${imported.name}" — ${imported.stops.length} stops`);
+    for (const stop of imported.stops) {
+      console.log(`  ${String(stop).padStart(3)}  ${imported.colors[stop as 50]}`);
+    }
+    if (args.inferSeedFlag) {
+      const inferred = inferSeed(imported);
+      console.log("");
+      console.log(`Inferred seed  ${inferred.seed}  (from stop ${inferred.fromStop})`);
+      console.log(`Average ∆E     ${inferred.averageDeltaE.toFixed(3)}  (lower = better fit)`);
+      console.log("");
+      console.log("Regenerated palette:");
+      console.log(renderText(inferred.palette));
+    }
     return;
   }
 
