@@ -41,6 +41,18 @@ import {
   harmonyDescription,
   checkDeltaE,
   formatDeltaE,
+  mixColors,
+  lighten,
+  darken,
+  saturate,
+  desaturate,
+  rotateHue,
+  complement,
+  invert,
+  randomSeed,
+  interpolatePalette,
+  reversePalette,
+  paletteToGradient,
   type HarmonyScheme,
 } from "../src/index";
 
@@ -54,6 +66,19 @@ interface ParsedArgs {
   cvd: boolean;
   harmony: HarmonyScheme | null;
   deltaE: string | null;
+  mix: string | null;
+  mixAmount: number;
+  random: boolean;
+  rotate: number | null;
+  complement: boolean;
+  lighten: number | null;
+  darken: number | null;
+  saturate: number | null;
+  desaturate: number | null;
+  invert: boolean;
+  interpolate: boolean;
+  reverse: boolean;
+  gradient: boolean;
   distribution: "linear" | "perceptual";
   hueShift: number;
   chromaFalloff: number;
@@ -71,6 +96,19 @@ function parseArgs(argv: string[]): ParsedArgs {
     cvd: false,
     harmony: null,
     deltaE: null,
+    mix: null,
+    mixAmount: 0.5,
+    random: false,
+    rotate: null,
+    complement: false,
+    lighten: null,
+    darken: null,
+    saturate: null,
+    desaturate: null,
+    invert: false,
+    interpolate: false,
+    reverse: false,
+    gradient: false,
     distribution: "perceptual",
     hueShift: 0,
     chromaFalloff: 0.5,
@@ -118,6 +156,52 @@ function parseArgs(argv: string[]): ParsedArgs {
         args.deltaE = next;
         i++;
         break;
+      case "--mix":
+        args.mix = next;
+        i++;
+        break;
+      case "--mix-amount":
+        args.mixAmount = Number(next) || 0.5;
+        i++;
+        break;
+      case "--random":
+        args.random = true;
+        break;
+      case "--rotate":
+        args.rotate = Number(next) || 0;
+        i++;
+        break;
+      case "--complement":
+        args.complement = true;
+        break;
+      case "--lighten":
+        args.lighten = Number(next) || 0.1;
+        i++;
+        break;
+      case "--darken":
+        args.darken = Number(next) || 0.1;
+        i++;
+        break;
+      case "--saturate":
+        args.saturate = Number(next) || 0.05;
+        i++;
+        break;
+      case "--desaturate":
+        args.desaturate = Number(next) || 0.05;
+        i++;
+        break;
+      case "--invert":
+        args.invert = true;
+        break;
+      case "--interpolate":
+        args.interpolate = true;
+        break;
+      case "--reverse":
+        args.reverse = true;
+        break;
+      case "--gradient":
+        args.gradient = true;
+        break;
       case "--distribution":
         args.distribution = next === "linear" ? "linear" : "perceptual";
         i++;
@@ -154,6 +238,19 @@ OPTIONS
       --apca <hex>       check APCA (WCAG 3 candidate) contrast against the seed
       --harmony <scheme> complementary | analogous | triadic | tetradic | split-complementary | monochromatic
       --delta-e <hex>    compute ∆E2000 color difference between the seed and a color
+      --mix <hex>        mix the seed with another color (use --mix-amount to set the ratio)
+      --mix-amount <t>   0–1, mix ratio (default 0.5)
+      --random           generate a random seed color (ignores the hex argument)
+      --rotate <deg>     rotate the seed hue by N degrees
+      --complement       return the 180° complement of the seed
+      --lighten <n>      increase OKLCH lightness by n (0–1)
+      --darken <n>       decrease OKLCH lightness by n (0–1)
+      --saturate <n>     increase OKLCH chroma by n
+      --desaturate <n>   decrease OKLCH chroma by n
+      --invert           invert the seed in sRGB space
+      --interpolate      print the palette with interpolated midpoints (21 steps)
+      --reverse          print the palette reversed (50 ↔ 950)
+      --gradient         print a CSS linear-gradient from the palette
       --cvd              simulate color vision deficiencies on the seed
       --theme            generate a coordinated light + dark theme pair (CSS)
       --distribution     linear | perceptual (default: perceptual)
@@ -165,10 +262,17 @@ EXAMPLES
   chroma-flow #6366f1
   chroma-flow #6366f1 --format css --name primary
   chroma-flow #6366f1 --format swift --name brand
+  chroma-flow --random
   chroma-flow "#10b981" --contrast "#ffffff"
   chroma-flow "#10b981" --apca "#ffffff"
   chroma-flow "#6366f1" --harmony triadic
   chroma-flow "#6366f1" --delta-e "#5b5cf0"
+  chroma-flow "#6366f1" --mix "#f59e0b" --mix-amount 0.3
+  chroma-flow "#6366f1" --rotate 120
+  chroma-flow "#6366f1" --complement
+  chroma-flow "#6366f1" --lighten 0.15
+  chroma-flow "#6366f1" --interpolate
+  chroma-flow "#6366f1" --gradient
   chroma-flow "#6366f1" --theme
   chroma-flow "#f59e0b" --cvd
 `.trim();
@@ -191,8 +295,21 @@ function main() {
     return;
   }
 
+  if (args.random) {
+    const generated = randomSeed();
+    console.log(`Random seed  ${generated}`);
+    const palette = generatePalette(generated, {
+      distribution: args.distribution,
+      hueShift: args.hueShift,
+      chromaFalloff: args.chromaFalloff,
+    });
+    console.log("");
+    console.log(renderText(palette));
+    return;
+  }
+
   if (!args.seed) {
-    console.error("Error: a seed hex color is required.\n");
+    console.error("Error: a seed hex color is required (or use --random).\n");
     console.error(HELP);
     process.exit(1);
   }
@@ -281,6 +398,54 @@ function main() {
     console.log(`∆E2000    ${formatDeltaE(result.deltaE)}`);
     console.log(`Band      ${result.band}`);
     console.log(`Below JND ${result.belowJND ? "yes (< 2.3)" : "no (≥ 2.3)"}`);
+    return;
+  }
+
+  // ── Single-color manipulation (operates on the seed) ──
+  if (args.mix || args.rotate !== null || args.complement || args.lighten !== null ||
+      args.darken !== null || args.saturate !== null || args.desaturate !== null || args.invert) {
+    let result = seed;
+    if (args.lighten !== null) result = lighten(result, args.lighten);
+    if (args.darken !== null) result = darken(result, args.darken);
+    if (args.saturate !== null) result = saturate(result, args.saturate);
+    if (args.desaturate !== null) result = desaturate(result, args.desaturate);
+    if (args.rotate !== null) result = rotateHue(result, args.rotate);
+    if (args.complement) result = complement(result);
+    if (args.invert) result = invert(result);
+    if (args.mix) {
+      let other: string;
+      try { other = normalizeHex(args.mix); } catch {
+        console.error(`Error: "${args.mix}" is not a valid hex color.`);
+        process.exit(1);
+      }
+      result = mixColors(seed, other, args.mixAmount);
+      console.log(`Mix        ${seed} × ${other} @ ${args.mixAmount}`);
+    }
+    console.log(`Result     ${result}`);
+    return;
+  }
+
+  // ── Palette-level utilities ──
+  if (args.interpolate || args.reverse || args.gradient) {
+    const base = generatePalette(seed, {
+      distribution: args.distribution,
+      hueShift: args.hueShift,
+      chromaFalloff: args.chromaFalloff,
+    });
+    if (args.gradient) {
+      console.log(paletteToGradient(base));
+      return;
+    }
+    if (args.reverse) {
+      console.log(`Reversed palette from ${seed}\n`);
+      console.log(renderText(reversePalette(base)));
+      return;
+    }
+    console.log(`Interpolated palette from ${seed} (21 steps)\n`);
+    const dense = interpolatePalette(base);
+    for (const [label, hex] of Object.entries(dense)) {
+      console.log(`${label.padStart(4)}  ${hex}`);
+    }
     return;
   }
 

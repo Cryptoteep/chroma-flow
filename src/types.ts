@@ -250,3 +250,21 @@ export interface DeltaEResult {
   belowJND: boolean;
 }
 
+/** Options for generating a random seed color. */
+export interface RandomSeedOptions {
+  /** Minimum OKLCH lightness (0–1). Default 0.45. */
+  minLightness?: number;
+  /** Maximum OKLCH lightness (0–1). Default 0.7. */
+  maxLightness?: number;
+  /** Minimum OKLCH chroma. Default 0.12. */
+  minChroma?: number;
+  /** Maximum OKLCH chroma. Default 0.28. */
+  maxChroma?: number;
+  /** Optional hue range [min, max] in degrees. Default full [0, 360). */
+  hueRange?: [number, number];
+}
+
+/** Sort order for palettes. */
+export type SortOrder = "lightness-asc" | "lightness-desc" | "chroma-asc" | "chroma-desc";
+
+

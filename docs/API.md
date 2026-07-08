@@ -14,6 +14,8 @@ tree-shakeable ESM exports and have zero runtime dependencies.
 - [Semantic themes](#semantic-themes)
 - [Color harmonies](#color-harmonies)
 - [Delta-E ∆E2000](#delta-e-e2000)
+- [Color manipulation](#color-manipulation)
+- [Palette utilities](#palette-utilities)
 - [Exporters](#exporters)
 - [Types](#types)
 
@@ -284,6 +286,75 @@ nearestColor("#6366f1", ["#ef4444", "#3f37bb", "#10b981"]);
 
 ---
 
+## Color manipulation
+
+OKLCH-based operations on individual colors. All return a hex string.
+
+### `mixColors(a, b, t = 0.5)`
+
+Blend two colors by factor `t` (0 = fully `a`, 1 = fully `b`), interpolating in
+OKLCH with shortest-path hue.
+
+```ts
+mixColors("#6366f1", "#f59e0b", 0.5); // "#e95ea0"
+```
+
+### Lightness & chroma
+
+- `lighten(hex, amount = 0.1)` — increase OKLCH lightness.
+- `darken(hex, amount = 0.1)` — decrease OKLCH lightness.
+- `saturate(hex, amount = 0.05)` — increase OKLCH chroma.
+- `desaturate(hex, amount = 0.05)` — decrease OKLCH chroma.
+
+### `rotateHue(hex, degrees)` / `complement(hex)` / `invert(hex)`
+
+- `rotateHue("#6366f1", 120)` → `#d93a00`
+- `complement` is shorthand for `rotateHue(hex, 180)`.
+- `invert` is channel-wise sRGB inversion (255 − channel).
+
+### `randomSeed(options?)`
+
+Generate a random seed hex in OKLCH, constrained to a pleasant lightness/chroma
+range so the result is usually usable as a palette seed.
+
+```ts
+randomSeed();                          // any vivid mid-tone
+randomSeed({ hueRange: [140, 200] });  // a random teal/cyan
+```
+
+`RandomSeedOptions`: `minLightness`, `maxLightness`, `minChroma`, `maxChroma`,
+`hueRange: [min, max]`.
+
+---
+
+## Palette utilities
+
+Higher-level operations on full palettes.
+
+### `interpolatePalette(palette)`
+
+Insert a midpoint between each standard stop. Returns a `Record<string, string>`
+with 21 entries (11 stops + 10 midpoints), keyed by the interpolated numeric
+label (e.g. `"50"`, `"75"`, `"100"`, `"125"`, …).
+
+### `sortPalette(palette, order)`
+
+Reorder stops by OKLCH lightness or chroma, ascending or descending. `order` ∈
+`"lightness-asc" | "lightness-desc" | "chroma-asc" | "chroma-desc"`. Returns a
+new `Palette` relabeled 50–950 in the new order.
+
+### `reversePalette(palette)`
+
+Reverse the ramp so stop 50 holds what was 950, and vice versa. Returns a new
+`Palette`.
+
+### `paletteToGradient(palette, direction = "to right")`
+
+Emit a CSS `linear-gradient(...)` string from the palette stops — handy for
+previews.
+
+---
+
 ## Exporters
 
 ### `exportPalette(palette, format, name?)`
@@ -311,4 +382,4 @@ All types are exported from the package root: `RGB`, `OKLCH`, `OKLab`,
 `PaletteStop`, `Palette`, `GenerateOptions`, `WCAGLevel`, `ContrastResult`,
 `CVDType`, `CVDPreview`, `ExportFormat`, `APHAResult`, `SemanticTheme`,
 `ThemeAudit`, `ThemePair`, `HarmonyScheme`, `HarmonyColor`, `Harmony`,
-`DeltaEResult`.
+`DeltaEResult`, `RandomSeedOptions`, `SortOrder`.

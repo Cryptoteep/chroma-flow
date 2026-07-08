@@ -39,6 +39,8 @@ ad-supported, or acquired.
 - 🌗 **Light + dark theme generation** — a coordinated semantic theme pair (background, surface, text, primary, accent, success/warning/danger) from one seed, with a per-role WCAG + APCA audit.
 - 🎨 **Color harmonies** — complementary, analogous, triadic, tetradic, split-complementary, and monochromatic schemes derived from a seed.
 - 📐 **Delta-E ∆E2000** — the perceptual color-difference metric with a human-readable band and a nearest-color finder.
+- 🎛️ **Color manipulation** — mix, lighten, darken, saturate, rotate hue, complement, invert, and random-seed generation in OKLCH.
+- 🧰 **Palette utilities** — interpolate midpoints, sort by lightness/chroma, reverse, or emit a CSS gradient.
 - 👁️ **Color-blind simulation** — protanopia, deuteranopia, tritanopia, achromatopsia.
 - 🎯 **Smart text-color suggestion** — auto-pick black or white text for any background.
 - 📤 **Eight export formats** — CSS variables, Tailwind config, JSON, SCSS, SVG swatch sheets, Android `colors.xml`, SwiftUI `Color`, Jetpack Compose `Color`.
@@ -124,6 +126,19 @@ triad.colors.forEach((c) => console.log(c.role, c.hex)); // base, triad-1, triad
 import { checkDeltaE, nearestColor } from "chroma-flow";
 const d = checkDeltaE("#6366f1", "#5b5cf0"); // { deltaE: 3.17, band: "noticeable", belowJND: false }
 const nearest = nearestColor("#6366f1", ["#ef4444", "#3f37bb", "#10b981"]);
+
+// 10. (v0.4) Manipulate colors in OKLCH.
+import { mixColors, lighten, rotateHue, randomSeed } from "chroma-flow";
+mixColors("#6366f1", "#f59e0b", 0.5); // "#e95ea0"
+lighten("#6366f1", 0.15);              // "#8d97ff"
+rotateHue("#6366f1", 120);             // "#d93a00"
+randomSeed();                          // e.g. "#a952ba"
+
+// 11. (v0.4) Work with full palettes.
+import { interpolatePalette, reversePalette, paletteToGradient } from "chroma-flow";
+const dense = interpolatePalette(palette);   // 21 steps (11 + 10 mids)
+const inverted = reversePalette(palette);    // 50 ↔ 950
+const gradient = paletteToGradient(palette); // "linear-gradient(to right, …)"
 ```
 
 ### CLI
@@ -158,6 +173,18 @@ chroma-flow "#6366f1" --harmony triadic
 
 # Measure the perceptual difference between two colors (v0.3)
 chroma-flow "#6366f1" --delta-e "#5b5cf0"
+
+# Mix, rotate, complement, lighten (v0.4)
+chroma-flow "#6366f1" --mix "#f59e0b" --mix-amount 0.3
+chroma-flow "#6366f1" --rotate 120
+chroma-flow "#6366f1" --complement
+chroma-flow "#6366f1" --lighten 0.15
+chroma-flow --random
+
+# Palette utilities (v0.4)
+chroma-flow "#6366f1" --interpolate
+chroma-flow "#6366f1" --reverse
+chroma-flow "#6366f1" --gradient
 
 # Simulate color vision deficiencies
 chroma-flow "#6366f1" --cvd
@@ -241,6 +268,7 @@ Please review our [Code of Conduct](CODE_OF_CONDUCT.md) before participating.
 - [x] ~~Swift + Jetpack Compose exporters~~ — shipped in v0.2.0
 - [x] ~~Color harmonies (complementary / triadic / analogous …)~~ — shipped in v0.3.0
 - [x] ~~Delta-E ∆E2000 color difference helper~~ — shipped in v0.3.0
+- [x] ~~Color manipulation & palette utilities~~ — shipped in v0.4.0
 - [ ] Live web playground (in-repo, deployed to GitHub Pages)
 - [ ] ESM + CJS dual build
 - [ ] Figma plugin

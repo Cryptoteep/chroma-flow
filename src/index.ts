@@ -27,6 +27,8 @@ export type {
   HarmonyColor,
   Harmony,
   DeltaEResult,
+  RandomSeedOptions,
+  SortOrder,
 } from "./types";
 
 export {
@@ -116,5 +118,24 @@ export {
   nearestColor,
 } from "./deltaE";
 
+export {
+  mixColors,
+  lighten,
+  darken,
+  saturate,
+  desaturate,
+  rotateHue,
+  complement,
+  invert,
+  randomSeed,
+} from "./manipulate";
+
+export {
+  interpolatePalette,
+  sortPalette,
+  reversePalette,
+  paletteToGradient,
+} from "./palette-utils";
+
 /** Library version. */
-export const VERSION = "0.3.0";
+export const VERSION = "0.4.0";

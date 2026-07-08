@@ -11,6 +11,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Live web playground (in-repo, GitHub Pages)
 - Figma plugin
 
+## [0.4.0] - 2025-01-29
+
+### Added
+- 🎛️ **Color manipulation primitives** (`mixColors`, `lighten`, `darken`,
+  `saturate`, `desaturate`, `rotateHue`, `complement`, `invert`, `randomSeed`) —
+  OKLCH-based operations on individual colors for predictable, perceptual edits.
+- 🧰 **Palette utilities** (`interpolatePalette`, `sortPalette`, `reversePalette`,
+  `paletteToGradient`) — insert midpoints between stops, sort by lightness/chroma,
+  reverse a ramp, or emit a CSS gradient string.
+- 🖥️ CLI flags `--mix`, `--mix-amount`, `--random`, `--rotate`, `--complement`,
+  `--lighten`, `--darken`, `--saturate`, `--desaturate`, `--invert`,
+  `--interpolate`, `--reverse`, `--gradient`.
+- `VERSION` bumped to `0.4.0`.
+
+### Changed
+- `RandomSeedOptions`, `SortOrder` types exported from root.
+- New `src/manipulate.ts` and `src/palette-utils.ts` modules.
+
 ## [0.3.0] - 2025-01-22
 
 ### Added
