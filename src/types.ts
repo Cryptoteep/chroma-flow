@@ -294,4 +294,38 @@ export interface ImportedPalette {
   stops: number[];
 }
 
+/** A WCAG-conformant foreground/background pair. */
+export interface AccessiblePair {
+  /** Foreground hex. */
+  foreground: string;
+  /** Background hex. */
+  background: string;
+  /** WCAG 2.1 contrast ratio (1–21). */
+  ratio: number;
+  /** APCA Lc value (signed). */
+  apcaLc: number;
+  /** Whether it passes WCAG AA for normal text. */
+  passesAA: boolean;
+  /** Whether it passes WCAG AAA for normal text. */
+  passesAAA: boolean;
+}
+
+/** One row in a palette accessibility matrix. */
+export interface PaletteAccessibilityRow {
+  /** The palette stop this row describes. */
+  stop: PaletteStop;
+  /** The background hex. */
+  background: string;
+  /** Best black-text ratio against this background. */
+  blackRatio: number;
+  /** Best white-text ratio against this background. */
+  whiteRatio: number;
+  /** The recommended text color ("#000000" or "#ffffff"). */
+  recommendedText: string;
+  /** The ratio of the recommended pair. */
+  recommendedRatio: number;
+  /** WCAG conformance band for the recommended pair. */
+  band: "AAA" | "AA" | "AA Large" | "Fail";
+}
+
 

@@ -31,6 +31,8 @@ export type {
   SortOrder,
   InferredSeed,
   ImportedPalette,
+  AccessiblePair,
+  PaletteAccessibilityRow,
 } from "./types";
 
 export {
@@ -152,5 +154,12 @@ export {
   importAndInfer,
 } from "./palette-import";
 
+export {
+  findAccessiblePair,
+  suggestAccessibleText,
+  paletteAccessibilityMatrix,
+  accessibleStops,
+} from "./accessible";
+
 /** Library version. */
-export const VERSION = "0.6.0";
+export const VERSION = "0.7.0";

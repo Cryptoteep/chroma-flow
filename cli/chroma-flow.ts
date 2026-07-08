@@ -56,8 +56,12 @@ import {
   paletteToGradient,
   parsePalette,
   inferSeed,
+  findAccessiblePair,
+  paletteAccessibilityMatrix,
+  accessibleStops,
   type HarmonyScheme,
   type DeltaEMethod,
+  type WCAGLevel,
 } from "../src/index";
 
 interface ParsedArgs {
@@ -86,6 +90,9 @@ interface ParsedArgs {
   gradient: boolean;
   importString: string | null;
   inferSeedFlag: boolean;
+  pairs: boolean;
+  matrix: boolean;
+  level: WCAGLevel;
   distribution: "linear" | "perceptual";
   hueShift: number;
   chromaFalloff: number;
@@ -119,6 +126,9 @@ function parseArgs(argv: string[]): ParsedArgs {
     gradient: false,
     importString: null,
     inferSeedFlag: false,
+    pairs: false,
+    matrix: false,
+    level: "AA",
     distribution: "perceptual",
     hueShift: 0,
     chromaFalloff: 0.5,
@@ -223,6 +233,16 @@ function parseArgs(argv: string[]): ParsedArgs {
       case "--infer-seed":
         args.inferSeedFlag = true;
         break;
+      case "--pairs":
+        args.pairs = true;
+        break;
+      case "--matrix":
+        args.matrix = true;
+        break;
+      case "--level":
+        args.level = next === "AAA" ? "AAA" : "AA";
+        i++;
+        break;
       case "--distribution":
         args.distribution = next === "linear" ? "linear" : "perceptual";
         i++;
@@ -275,6 +295,9 @@ OPTIONS
       --gradient         print a CSS linear-gradient from the palette
       --import <string>  parse a palette from a CSS/Tailwind/JSON string
       --infer-seed       with --import, infer the seed that best reproduces the palette
+      --pairs            find the best WCAG-conformant fg/bg pair from the palette
+      --matrix           print a full accessibility matrix (per-stop black/white text)
+      --level <lvl>      AA | AAA (default: AA) — threshold for --pairs and --matrix
       --cvd              simulate color vision deficiencies on the seed
       --theme            generate a coordinated light + dark theme pair (CSS)
       --distribution     linear | perceptual (default: perceptual)
@@ -299,6 +322,8 @@ EXAMPLES
   chroma-flow "#6366f1" --interpolate
   chroma-flow "#6366f1" --gradient
   chroma-flow --import ":root { --brand-500: #6366f1; }" --infer-seed
+  chroma-flow "#6366f1" --pairs --level AAA
+  chroma-flow "#6366f1" --matrix
   chroma-flow "#6366f1" --theme
   chroma-flow "#f59e0b" --cvd
 `.trim();
@@ -497,6 +522,37 @@ function main() {
     const dense = interpolatePalette(base);
     for (const [label, hex] of Object.entries(dense)) {
       console.log(`${label.padStart(4)}  ${hex}`);
+    }
+    return;
+  }
+
+  // ── Accessible pairs & matrix ──
+  if (args.pairs || args.matrix) {
+    const base = generatePalette(seed, {
+      distribution: args.distribution,
+      hueShift: args.hueShift,
+      chromaFalloff: args.chromaFalloff,
+    });
+    if (args.pairs) {
+      const pair = findAccessiblePair(base, args.level);
+      if (!pair) {
+        console.log(`No pair meets WCAG ${args.level} for seed ${seed}.`);
+      } else {
+        console.log(`Best WCAG ${args.level} pair from seed ${seed}`);
+        console.log(`  fg ${pair.foreground} on bg ${pair.background}`);
+        console.log(`  ratio ${pair.ratio.toFixed(2)}:1  APCA ${formatLc(pair.apcaLc)}`);
+        console.log(`  passes AA ${pair.passesAA ? "YES" : "NO"}  AAA ${pair.passesAAA ? "YES" : "NO"}`);
+      }
+      return;
+    }
+    console.log(`Accessibility matrix for seed ${seed}\n`);
+    const matrix = paletteAccessibilityMatrix(base);
+    const stops = accessibleStops(base, args.level);
+    console.log(`Stops passing WCAG ${args.level}: ${stops.length}/${matrix.length}\n`);
+    for (const row of matrix) {
+      console.log(
+        `  ${String(row.stop).padStart(3)}  ${row.background}  black ${row.blackRatio.toFixed(2)}  white ${row.whiteRatio.toFixed(2)}  -> ${row.recommendedText}  [${row.band}]`
+      );
     }
     return;
   }

@@ -17,6 +17,7 @@ tree-shakeable ESM exports and have zero runtime dependencies.
 - [Color manipulation](#color-manipulation)
 - [Palette utilities](#palette-utilities)
 - [Palette import & seed inference](#palette-import--seed-inference)
+- [Accessible pairs](#accessible-pairs)
 - [Exporters](#exporters)
 - [Types](#types)
 
@@ -421,6 +422,50 @@ inferred seed in one call.
 
 ---
 
+## Accessible pairs
+
+Discover WCAG-conformant foreground/background pairs from a palette and audit
+every stop's text accessibility.
+
+### `findAccessiblePair(palette, level = "AA", options?)`
+
+Search all stop-vs-stop combinations plus black/white text against each stop,
+and return the pair with the highest contrast ratio that meets the requested
+level. Returns `null` if no pair qualifies.
+
+```ts
+const pair = findAccessiblePair(palette, "AAA");
+// { foreground: "#ffffff", background: "#0c033d", ratio: 19.16, apcaLc: -107, passesAA: true, passesAAA: true }
+```
+
+`options.includeBlackWhite` (default `true`) controls whether black/white text
+candidates are considered.
+
+### `suggestAccessibleText(palette, backgroundStop, level = "AA")`
+
+Suggest the most accessible text color from the palette for a given background
+stop, preferring palette colors over black/white when they meet the level with
+a higher ratio.
+
+### `paletteAccessibilityMatrix(palette)`
+
+Audit every stop: report the black/white text ratios, the recommended text
+color, the recommended pair's ratio, and a WCAG band
+(`"AAA" | "AA" | "AA Large" | "Fail"`).
+
+```ts
+paletteAccessibilityMatrix(palette);
+// [{ stop: 50, background: "#e8f5ff", blackRatio: 18.94, whiteRatio: 1.11,
+//   recommendedText: "#000000", recommendedRatio: 18.94, band: "AAA" }, ...]
+```
+
+### `accessibleStops(palette, level = "AA")`
+
+List the stop numbers that pass the requested WCAG level as a background (with
+either black or white text), in ascending order.
+
+---
+
 ## Exporters
 
 ### `exportPalette(palette, format, name?)`
@@ -449,4 +494,4 @@ All types are exported from the package root: `RGB`, `OKLCH`, `OKLab`,
 `CVDType`, `CVDPreview`, `ExportFormat`, `APHAResult`, `SemanticTheme`,
 `ThemeAudit`, `ThemePair`, `HarmonyScheme`, `HarmonyColor`, `Harmony`,
 `DeltaEResult`, `DeltaEMethod`, `RandomSeedOptions`, `SortOrder`,
-`InferredSeed`, `ImportedPalette`.
+`InferredSeed`, `ImportedPalette`, `AccessiblePair`, `PaletteAccessibilityRow`.

@@ -42,6 +42,7 @@ ad-supported, or acquired.
 - 🎛️ **Color manipulation** — mix, lighten, darken, saturate, rotate hue, complement, invert, and random-seed generation in OKLCH.
 - 🧰 **Palette utilities** — interpolate midpoints, sort by lightness/chroma, reverse, or emit a CSS gradient.
 - 📥 **Palette import & seed inference** — parse an existing CSS / Tailwind / JSON palette back into a chroma-flow seed, so you can reverse-engineer a design system and keep tweaking.
+- ♿ **Accessible pair finder** — discover WCAG-conformant foreground/background pairs from a palette, audit every stop's text accessibility, and list the stops that pass a given level.
 - 👁️ **Color-blind simulation** — protanopia, deuteranopia, tritanopia, achromatopsia.
 - 🎯 **Smart text-color suggestion** — auto-pick black or white text for any background.
 - 📤 **Eight export formats** — CSS variables, Tailwind config, JSON, SCSS, SVG swatch sheets, Android `colors.xml`, SwiftUI `Color`, Jetpack Compose `Color`.
@@ -149,6 +150,13 @@ const { inferred } = importAndInfer(css);
 console.log(inferred.seed);         // "#6366f1"
 console.log(inferred.averageDeltaE); // ~0.19 (lower = better fit)
 console.log(inferred.palette[500]);  // regenerated from the inferred seed
+
+// 13. (v0.7) Find WCAG-conformant pairs and audit the palette.
+import { findAccessiblePair, paletteAccessibilityMatrix } from "chroma-flow";
+const pair = findAccessiblePair(palette, "AAA");
+// { foreground: "#ffffff", background: "#0c033d", ratio: 19.16, passesAAA: true }
+const matrix = paletteAccessibilityMatrix(palette);
+// [{ stop: 50, recommendedText: "#000000", band: "AAA" }, …]
 ```
 
 ### CLI
@@ -200,6 +208,10 @@ chroma-flow "#6366f1" --gradient
 
 # Import an existing palette and infer its seed (v0.6)
 chroma-flow --import ":root { --brand-500: #6366f1; }" --infer-seed
+
+# Find WCAG-conformant pairs and audit the palette (v0.7)
+chroma-flow "#6366f1" --pairs --level AAA
+chroma-flow "#6366f1" --matrix
 
 # Simulate color vision deficiencies
 chroma-flow "#6366f1" --cvd
@@ -286,6 +298,7 @@ Please review our [Code of Conduct](CODE_OF_CONDUCT.md) before participating.
 - [x] ~~Color manipulation & palette utilities~~ — shipped in v0.4.0
 - [x] ~~∆E76 and ∆E94 metrics~~ — shipped in v0.5.0
 - [x] ~~Palette import & seed inference~~ — shipped in v0.6.0
+- [x] ~~Accessible pair finder & palette matrix~~ — shipped in v0.7.0
 - [ ] Live web playground (in-repo, deployed to GitHub Pages)
 - [ ] ESM + CJS dual build
 - [ ] Figma plugin

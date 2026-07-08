@@ -11,6 +11,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Live web playground (in-repo, GitHub Pages)
 - Figma plugin
 
+## [0.7.0] - 2025-02-19
+
+### Added
+- ♿ **Accessible pair finder** (`findAccessiblePair`, `suggestAccessibleText`,
+  `paletteAccessibilityMatrix`, `accessibleStops`) — discover WCAG-conformant
+  foreground/background pairs from a palette, audit every stop's text
+  accessibility, and list the stops that pass a given level.
+- 🖥️ CLI flags `--pairs`, `--matrix`, and `--level AA|AAA`.
+- `VERSION` bumped to `0.7.0`.
+
+### Changed
+- `AccessiblePair`, `PaletteAccessibilityRow` types exported from root.
+- New `src/accessible.ts` module.
+
 ## [0.6.0] - 2025-02-12
 
 ### Added
