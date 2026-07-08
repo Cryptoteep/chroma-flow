@@ -45,6 +45,7 @@ ad-supported, or acquired.
 - ♿ **Accessible pair finder** — discover WCAG-conformant foreground/background pairs from a palette, audit every stop's text accessibility, and list the stops that pass a given level.
 - 🎨 **WCAG 2.2 non-text contrast** — check the 3:1 threshold for UI components, borders, icons, and focus indicators (SC 1.4.11).
 - 🌈 **Wide-gamut (Display-P3) support** — convert to/from CSS `color(display-p3 ...)`, detect out-of-sRGB-gamut colors, and clamp back to sRGB.
+- 📋 **Full accessibility report** — one call combining WCAG 2.1 text, WCAG 2.2 non-text, and gamut loss into a per-stop table with an overall score.
 - 👁️ **Color-blind simulation** — protanopia, deuteranopia, tritanopia, achromatopsia.
 - 🎯 **Smart text-color suggestion** — auto-pick black or white text for any background.
 - 📤 **Eight export formats** — CSS variables, Tailwind config, JSON, SCSS, SVG swatch sheets, Android `colors.xml`, SwiftUI `Color`, Jetpack Compose `Color`.
@@ -171,6 +172,12 @@ paletteNonTextMatrix(palette, "#ffffff");
 import { toP3String, analyzeGamut } from "chroma-flow";
 toP3String("#10b981"); // "color(display-p3 0.090178 0.461936 0.251553)"
 analyzeGamut("#10b981"); // { p3String, inSRGB: true, inP3: true, gamutLoss: 0 }
+
+// 16. (v1.0) Get a unified full accessibility report.
+import { fullAccessibilityReport } from "chroma-flow";
+const report = fullAccessibilityReport(palette, "#ffffff", "AAA", { seed: "#6366f1" });
+console.log(report.overallScore);  // 0.82
+console.log(report.textPassing);   // 10/11
 ```
 
 ### CLI
@@ -232,6 +239,9 @@ chroma-flow "#6366f1" --nontext --nontext-bg "#ffffff"
 
 # Emit the palette as CSS display-p3 wide-gamut (v0.9)
 chroma-flow "#6366f1" --p3
+
+# Get a unified full accessibility report (v1.0)
+chroma-flow "#6366f1" --report --report-bg "#ffffff" --level AAA
 
 # Simulate color vision deficiencies
 chroma-flow "#6366f1" --cvd
@@ -321,6 +331,7 @@ Please review our [Code of Conduct](CODE_OF_CONDUCT.md) before participating.
 - [x] ~~Accessible pair finder & palette matrix~~ — shipped in v0.7.0
 - [x] ~~WCAG 2.2 non-text contrast~~ — shipped in v0.8.0
 - [x] ~~Wide-gamut (Display-P3) support~~ — shipped in v0.9.0
+- [x] ~~Full accessibility report~~ — shipped in v1.0.0
 - [ ] Live web playground (in-repo, deployed to GitHub Pages)
 - [ ] ESM + CJS dual build
 - [ ] Figma plugin

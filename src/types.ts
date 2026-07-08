@@ -366,4 +366,46 @@ export interface GamutInfo {
   gamutLoss: number;
 }
 
+/** A single row in a unified accessibility report for a palette. */
+export interface AccessibilityReportRow {
+  /** The palette stop this row describes. */
+  stop: PaletteStop;
+  /** The background hex (the stop's color). */
+  background: string;
+  /** Best text contrast ratio (max of black/white). */
+  textRatio: number;
+  /** WCAG band for text contrast (AAA / AA / AA Large / Fail). */
+  textBand: "AAA" | "AA" | "AA Large" | "Fail";
+  /** Recommended text color ("#000000" or "#ffffff"). */
+  recommendedText: string;
+  /** Non-text contrast ratio (stop vs the report background). */
+  nonTextRatio: number;
+  /** Whether the stop passes WCAG 2.2 non-text 3:1 on the report background. */
+  nonTextPasses: boolean;
+  /** ∆E2000 gamut loss (0 for in-sRGB colors). */
+  gamutLoss: number;
+}
+
+/** A unified accessibility report combining text, non-text, and gamut audits. */
+export interface FullAccessibilityReport {
+  /** The seed the palette was generated from. */
+  seed: string;
+  /** The background used for the non-text audit. */
+  background: string;
+  /** The WCAG level requested for text checks (AA / AAA). */
+  level: WCAGLevel;
+  /** Per-stop rows. */
+  rows: AccessibilityReportRow[];
+  /** Number of stops passing the requested text WCAG level. */
+  textPassing: number;
+  /** Number of stops passing non-text 3:1 on the background. */
+  nonTextPassing: number;
+  /** Number of stops with zero gamut loss. */
+  inGamut: number;
+  /** Total stops audited. */
+  total: number;
+  /** Overall pass rate (0–1), averaged across the three dimensions. */
+  overallScore: number;
+}
+
 

@@ -61,6 +61,8 @@ import {
   accessibleStops,
   paletteNonTextMatrix,
   analyzeGamut,
+  fullAccessibilityReport,
+  summarizeReport,
   type HarmonyScheme,
   type DeltaEMethod,
   type WCAGLevel,
@@ -97,6 +99,8 @@ interface ParsedArgs {
   nontext: boolean;
   nontextBg: string | null;
   p3: boolean;
+  report: boolean;
+  reportBg: string | null;
   level: WCAGLevel;
   distribution: "linear" | "perceptual";
   hueShift: number;
@@ -136,6 +140,8 @@ function parseArgs(argv: string[]): ParsedArgs {
     nontext: false,
     nontextBg: null,
     p3: false,
+    report: false,
+    reportBg: null,
     level: "AA",
     distribution: "perceptual",
     hueShift: 0,
@@ -261,6 +267,13 @@ function parseArgs(argv: string[]): ParsedArgs {
       case "--p3":
         args.p3 = true;
         break;
+      case "--report":
+        args.report = true;
+        break;
+      case "--report-bg":
+        args.reportBg = next;
+        i++;
+        break;
       case "--distribution":
         args.distribution = next === "linear" ? "linear" : "perceptual";
         i++;
@@ -319,6 +332,8 @@ OPTIONS
       --nontext         audit the palette for WCAG 2.2 non-text (3:1) contrast
       --nontext-bg <hx> background for --nontext (default: #ffffff)
       --p3               emit the palette as CSS color(display-p3 ...) strings
+      --report           print a unified full accessibility report (text + non-text + gamut)
+      --report-bg <hx>   background for the non-text audit in --report (default: #ffffff)
       --cvd              simulate color vision deficiencies on the seed
       --theme            generate a coordinated light + dark theme pair (CSS)
       --distribution     linear | perceptual (default: perceptual)
@@ -347,6 +362,7 @@ EXAMPLES
   chroma-flow "#6366f1" --matrix
   chroma-flow "#6366f1" --nontext --nontext-bg "#ffffff"
   chroma-flow "#6366f1" --p3
+  chroma-flow "#6366f1" --report --report-bg "#ffffff" --level AAA
   chroma-flow "#6366f1" --theme
   chroma-flow "#f59e0b" --cvd
 `.trim();
@@ -612,6 +628,26 @@ function main() {
       const hex = base[stop];
       const info = analyzeGamut(hex);
       console.log(`  ${String(stop).padStart(3)}  ${hex}  ${info.p3String}`);
+    }
+    return;
+  }
+
+  // ── Unified full accessibility report ──
+  if (args.report) {
+    const bg = args.reportBg ? normalizeHex(args.reportBg) : "#ffffff";
+    const base = generatePalette(seed, {
+      distribution: args.distribution,
+      hueShift: args.hueShift,
+      chromaFalloff: args.chromaFalloff,
+    });
+    const report = fullAccessibilityReport(base, bg, args.level, { seed });
+    console.log(summarizeReport(report));
+    console.log("");
+    console.log("Per-stop:");
+    for (const row of report.rows) {
+      console.log(
+        `  ${String(row.stop).padStart(3)}  ${row.background}  text ${row.textRatio.toFixed(2)} [${row.textBand}]  nonText ${row.nonTextRatio.toFixed(2)} ${row.nonTextPasses ? "PASS" : "FAIL"}  gamut ${row.gamutLoss.toFixed(2)}`
+      );
     }
     return;
   }

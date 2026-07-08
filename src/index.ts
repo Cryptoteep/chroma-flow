@@ -35,6 +35,8 @@ export type {
   PaletteAccessibilityRow,
   NonTextContrastResult,
   GamutInfo,
+  AccessibilityReportRow,
+  FullAccessibilityReport,
 } from "./types";
 
 export {
@@ -182,5 +184,10 @@ export {
   paletteGamutAudit,
 } from "./gamut";
 
+export {
+  fullAccessibilityReport,
+  summarizeReport,
+} from "./report";
+
 /** Library version. */
-export const VERSION = "0.9.0";
+export const VERSION = "1.0.0";

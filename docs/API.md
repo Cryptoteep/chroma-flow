@@ -20,6 +20,7 @@ tree-shakeable ESM exports and have zero runtime dependencies.
 - [Accessible pairs](#accessible-pairs)
 - [WCAG 2.2 non-text contrast](#wcag-22-non-text-contrast)
 - [Wide-gamut (Display-P3)](#wide-gamut-display-p3)
+- [Full accessibility report](#full-accessibility-report)
 - [Exporters](#exporters)
 - [Types](#types)
 
@@ -552,6 +553,41 @@ report the ∆E2000 gamut loss per stop.
 
 ---
 
+## Full accessibility report
+
+A single call that combines text contrast (WCAG 2.1), non-text contrast
+(WCAG 2.2 SC 1.4.11), and sRGB gamut loss into one per-stop table plus summary
+scores. The one-stop API for a complete palette accessibility audit.
+
+### `fullAccessibilityReport(palette, background, level = "AA", options?)`
+
+Returns a `FullAccessibilityReport` with `rows` (per-stop), `textPassing`,
+`nonTextPassing`, `inGamut`, `total`, and `overallScore` (0–1).
+
+```ts
+const report = fullAccessibilityReport(palette, "#ffffff", "AAA", { seed: "#6366f1" });
+console.log(report.overallScore);  // 0.82
+console.log(report.textPassing);   // 10
+```
+
+`options.seed` is informational (included in the report for traceability).
+
+### `summarizeReport(report)`
+
+A compact multi-line text summary suitable for CLI output or quick inspection.
+
+```ts
+console.log(summarizeReport(report));
+// Palette accessibility report for seed #6366f1
+//   Background: #ffffff  Level: WCAG AAA
+//   Text contrast:     10/11 (91%) pass
+//   Non-text (3:1):    6/11 (55%) pass
+//   In sRGB gamut:     11/11 (100%)
+//   Overall score:     82%
+```
+
+---
+
 ## Exporters
 
 ### `exportPalette(palette, format, name?)`
@@ -581,4 +617,5 @@ All types are exported from the package root: `RGB`, `OKLCH`, `OKLab`,
 `ThemeAudit`, `ThemePair`, `HarmonyScheme`, `HarmonyColor`, `Harmony`,
 `DeltaEResult`, `DeltaEMethod`, `RandomSeedOptions`, `SortOrder`,
 `InferredSeed`, `ImportedPalette`, `AccessiblePair`, `PaletteAccessibilityRow`,
-`NonTextContrastResult`, `GamutInfo`.
+`NonTextContrastResult`, `GamutInfo`, `AccessibilityReportRow`,
+`FullAccessibilityReport`.

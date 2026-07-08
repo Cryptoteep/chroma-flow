@@ -11,6 +11,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Live web playground (in-repo, GitHub Pages)
 - Figma plugin
 
+## [1.0.0] - 2025-03-12
+
+### 🎉 Milestone release
+
+chroma-flow 1.0.0 — the API is stable and the feature set is complete for a
+production-grade accessible-color toolkit. This release adds a **unified full
+accessibility report** that combines text contrast, non-text contrast, and
+gamut loss into a single per-stop table plus an overall score.
+
+### Added
+- 📋 **Unified full accessibility report** (`fullAccessibilityReport`,
+  `summarizeReport`) — one call that combines WCAG 2.1 text contrast, WCAG 2.2
+  non-text 3:1 contrast, and sRGB gamut loss into a per-stop table with
+  summary scores (textPassing, nonTextPassing, inGamut, overallScore 0–1).
+- 🖥️ CLI flags `--report` and `--report-bg <hex>`.
+- `VERSION` bumped to `1.0.0`.
+
+### Changed
+- `AccessibilityReportRow`, `FullAccessibilityReport` types exported from root.
+- New `src/report.ts` module.
+
 ## [0.9.0] - 2025-03-05
 
 ### Added
