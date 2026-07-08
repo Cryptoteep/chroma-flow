@@ -347,4 +347,23 @@ export interface NonTextContrastResult {
   kind?: "border" | "icon" | "focus-indicator" | "graphic" | "general";
 }
 
+/** Result of a wide-gamut (Display-P3) analysis of a color. */
+export interface GamutInfo {
+  /** The original hex color (clamped to sRGB). */
+  hex: string;
+  /** The CSS `color(display-p3 r g b)` string (r/g/b in 0–1). */
+  p3String: string;
+  /** The linear-RGB values in the P3 space (0–1 each). */
+  p3: [number, number, number];
+  /** Whether the color is inside the sRGB gamut (no clamping needed). */
+  inSRGB: boolean;
+  /** Whether the color is inside the Display-P3 gamut. */
+  inP3: boolean;
+  /**
+   * The ∆E2000 between the original (unclamped) P3 color and its sRGB-clamped
+   * version. 0 when the color is already in sRGB. Higher = more gamut loss.
+   */
+  gamutLoss: number;
+}
+
 

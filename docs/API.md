@@ -19,6 +19,7 @@ tree-shakeable ESM exports and have zero runtime dependencies.
 - [Palette import & seed inference](#palette-import--seed-inference)
 - [Accessible pairs](#accessible-pairs)
 - [WCAG 2.2 non-text contrast](#wcag-22-non-text-contrast)
+- [Wide-gamut (Display-P3)](#wide-gamut-display-p3)
 - [Exporters](#exporters)
 - [Types](#types)
 
@@ -510,6 +511,47 @@ given background. Returns `{ stop, color, ratio, passes }[]` sorted by stop.
 
 ---
 
+## Wide-gamut (Display-P3)
+
+Convert between sRGB hex and the CSS `color(display-p3 r g b)` notation,
+detect out-of-sRGB-gamut colors, and clamp wide-gamut colors back to sRGB.
+Display-P3 is the gamut used by modern Apple displays and wide-gamut monitors.
+
+### `toP3String(hex)`
+
+Convert an sRGB hex color to a CSS `color(display-p3 r g b)` string (0–1).
+
+```ts
+toP3String("#10b981"); // "color(display-p3 0.090178 0.461936 0.251553)"
+```
+
+### `parseP3String(input)`
+
+Parse a CSS `color(display-p3 r g b)` string back to an sRGB hex. Values
+outside the sRGB gamut are clamped.
+
+### `isInSRGBGamut(hex)` / `p3IsInSRGBGamut(p3String)`
+
+Check whether a color falls inside the sRGB gamut. For hex, always true (hex
+is inherently sRGB). For a `color(display-p3 ...)` string, returns false if
+any channel is outside [0, 1] after conversion to sRGB.
+
+### `clampToSRGB(p3String)`
+
+Clamp a `color(display-p3 ...)` string to the sRGB gamut, returning a hex.
+
+### `analyzeGamut(hex)`
+
+Full wide-gamut analysis: the P3 representation, gamut membership, and ∆E2000
+gamut loss. Returns a `GamutInfo` object.
+
+### `paletteGamutAudit(oklchColors, srgbColors)`
+
+Compare theoretical OKLCH colors to their sRGB-clamped palette counterparts and
+report the ∆E2000 gamut loss per stop.
+
+---
+
 ## Exporters
 
 ### `exportPalette(palette, format, name?)`
@@ -539,4 +581,4 @@ All types are exported from the package root: `RGB`, `OKLCH`, `OKLab`,
 `ThemeAudit`, `ThemePair`, `HarmonyScheme`, `HarmonyColor`, `Harmony`,
 `DeltaEResult`, `DeltaEMethod`, `RandomSeedOptions`, `SortOrder`,
 `InferredSeed`, `ImportedPalette`, `AccessiblePair`, `PaletteAccessibilityRow`,
-`NonTextContrastResult`.
+`NonTextContrastResult`, `GamutInfo`.

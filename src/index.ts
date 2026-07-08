@@ -34,6 +34,7 @@ export type {
   AccessiblePair,
   PaletteAccessibilityRow,
   NonTextContrastResult,
+  GamutInfo,
 } from "./types";
 
 export {
@@ -171,5 +172,15 @@ export {
   paletteNonTextMatrix,
 } from "./nontext";
 
+export {
+  toP3String,
+  parseP3String,
+  isInSRGBGamut,
+  p3IsInSRGBGamut,
+  clampToSRGB,
+  analyzeGamut,
+  paletteGamutAudit,
+} from "./gamut";
+
 /** Library version. */
-export const VERSION = "0.8.0";
+export const VERSION = "0.9.0";

@@ -11,6 +11,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Live web playground (in-repo, GitHub Pages)
 - Figma plugin
 
+## [0.9.0] - 2025-03-05
+
+### Added
+- 🌈 **Wide-gamut (Display-P3) support** (`toP3String`, `parseP3String`,
+  `isInSRGBGamut`, `p3IsInSRGBGamut`, `clampToSRGB`, `analyzeGamut`,
+  `paletteGamutAudit`) — convert between sRGB hex and the CSS
+  `color(display-p3 r g b)` notation, detect out-of-sRGB-gamut colors, clamp
+  wide-gamut colors back to sRGB, and audit a palette for gamut loss.
+- 🖥️ CLI flag `--p3` to emit the palette as CSS `color(display-p3 ...)` strings.
+- `VERSION` bumped to `0.9.0`.
+
+### Changed
+- `GamutInfo` type exported from root.
+- New `src/gamut.ts` module.
+
 ## [0.8.0] - 2025-02-26
 
 ### Added

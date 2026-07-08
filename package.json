@@ -1,6 +1,6 @@
 {
   "name": "chroma-flow",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "Zero-dependency TypeScript library & CLI for generating accessible (WCAG + color-blind-safe) color palettes from a single seed color using OKLCH.",
   "license": "MIT",
   "author": "Cryptoteep",

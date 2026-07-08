@@ -60,6 +60,7 @@ import {
   paletteAccessibilityMatrix,
   accessibleStops,
   paletteNonTextMatrix,
+  analyzeGamut,
   type HarmonyScheme,
   type DeltaEMethod,
   type WCAGLevel,
@@ -95,6 +96,7 @@ interface ParsedArgs {
   matrix: boolean;
   nontext: boolean;
   nontextBg: string | null;
+  p3: boolean;
   level: WCAGLevel;
   distribution: "linear" | "perceptual";
   hueShift: number;
@@ -133,6 +135,7 @@ function parseArgs(argv: string[]): ParsedArgs {
     matrix: false,
     nontext: false,
     nontextBg: null,
+    p3: false,
     level: "AA",
     distribution: "perceptual",
     hueShift: 0,
@@ -255,6 +258,9 @@ function parseArgs(argv: string[]): ParsedArgs {
         args.nontextBg = next;
         i++;
         break;
+      case "--p3":
+        args.p3 = true;
+        break;
       case "--distribution":
         args.distribution = next === "linear" ? "linear" : "perceptual";
         i++;
@@ -312,6 +318,7 @@ OPTIONS
       --level <lvl>      AA | AAA (default: AA) — threshold for --pairs and --matrix
       --nontext         audit the palette for WCAG 2.2 non-text (3:1) contrast
       --nontext-bg <hx> background for --nontext (default: #ffffff)
+      --p3               emit the palette as CSS color(display-p3 ...) strings
       --cvd              simulate color vision deficiencies on the seed
       --theme            generate a coordinated light + dark theme pair (CSS)
       --distribution     linear | perceptual (default: perceptual)
@@ -339,6 +346,7 @@ EXAMPLES
   chroma-flow "#6366f1" --pairs --level AAA
   chroma-flow "#6366f1" --matrix
   chroma-flow "#6366f1" --nontext --nontext-bg "#ffffff"
+  chroma-flow "#6366f1" --p3
   chroma-flow "#6366f1" --theme
   chroma-flow "#f59e0b" --cvd
 `.trim();
@@ -588,6 +596,22 @@ function main() {
       console.log(
         `  ${String(row.stop).padStart(3)}  ${row.color}  ${row.ratio.toFixed(2)}  ${row.passes ? "PASS" : "FAIL"}`
       );
+    }
+    return;
+  }
+
+  // ── Display-P3 wide-gamut output ──
+  if (args.p3) {
+    const base = generatePalette(seed, {
+      distribution: args.distribution,
+      hueShift: args.hueShift,
+      chromaFalloff: args.chromaFalloff,
+    });
+    console.log(`Display-P3 palette for seed ${seed}\n`);
+    for (const stop of getStops()) {
+      const hex = base[stop];
+      const info = analyzeGamut(hex);
+      console.log(`  ${String(stop).padStart(3)}  ${hex}  ${info.p3String}`);
     }
     return;
   }
