@@ -1,0 +1,60 @@
+{
+  "name": "chroma-flow",
+  "version": "0.1.0",
+  "description": "Zero-dependency TypeScript library & CLI for generating accessible (WCAG + color-blind-safe) color palettes from a single seed color using OKLCH.",
+  "license": "MIT",
+  "author": "Cryptoteep",
+  "homepage": "https://github.com/Cryptoteep/chroma-flow",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Cryptoteep/chroma-flow.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Cryptoteep/chroma-flow/issues"
+  },
+  "keywords": [
+    "color",
+    "palette",
+    "oklch",
+    "wcag",
+    "accessibility",
+    "design-system",
+    "tailwind",
+    "color-blind",
+    "cvd",
+    "contrast",
+    "typescript",
+    "cli"
+  ],
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "cli",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "bin": {
+    "chroma-flow": "./dist/cli/chroma-flow.js"
+  },
+  "sideEffects": false,
+  "scripts": {
+    "build": "bun build src/index.ts --outdir dist --target node && bun build cli/chroma-flow.ts --outfile dist/cli/chroma-flow.js --target node",
+    "cli": "bun run cli/chroma-flow.ts",
+    "example": "bun run examples/basic.ts",
+    "prepublishOnly": "bun run build"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

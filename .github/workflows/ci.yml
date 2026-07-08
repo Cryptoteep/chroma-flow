@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-check:
+    name: Type-check & build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Type-check
+        run: bunx tsc --noEmit
+
+      - name: Run example (smoke test)
+        run: bun run examples/basic.ts
+
+      - name: CLI smoke test
+        run: |
+          bun run cli/chroma-flow.ts "#6366f1" --format css
+          bun run cli/chroma-flow.ts "#10b981" --format tailwind --name emerald
+          bun run cli/chroma-flow.ts "#f59e0b" --contrast "#ffffff"
+          bun run cli/chroma-flow.ts "#ef4444" --cvd
