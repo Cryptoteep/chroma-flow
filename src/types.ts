@@ -328,4 +328,23 @@ export interface PaletteAccessibilityRow {
   band: "AAA" | "AA" | "AA Large" | "Fail";
 }
 
+/** Result of a WCAG 2.2 non-text contrast check (UI components & graphics). */
+export interface NonTextContrastResult {
+  /** Foreground color (the UI component / graphic color). */
+  foreground: string;
+  /** Background color (the adjacent color). */
+  background: string;
+  /** WCAG 2.1 contrast ratio (1–21). */
+  ratio: number;
+  /** Whether it passes the WCAG 2.2 non-text 3:1 threshold. */
+  passes: boolean;
+  /** Conformance band. */
+  band: "Pass" | "Fail";
+  /**
+   * The kind of non-text element this is most relevant to — purely
+   * informational, set by the caller.
+   */
+  kind?: "border" | "icon" | "focus-indicator" | "graphic" | "general";
+}
+
 

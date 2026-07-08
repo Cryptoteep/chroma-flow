@@ -59,6 +59,7 @@ import {
   findAccessiblePair,
   paletteAccessibilityMatrix,
   accessibleStops,
+  paletteNonTextMatrix,
   type HarmonyScheme,
   type DeltaEMethod,
   type WCAGLevel,
@@ -92,6 +93,8 @@ interface ParsedArgs {
   inferSeedFlag: boolean;
   pairs: boolean;
   matrix: boolean;
+  nontext: boolean;
+  nontextBg: string | null;
   level: WCAGLevel;
   distribution: "linear" | "perceptual";
   hueShift: number;
@@ -128,6 +131,8 @@ function parseArgs(argv: string[]): ParsedArgs {
     inferSeedFlag: false,
     pairs: false,
     matrix: false,
+    nontext: false,
+    nontextBg: null,
     level: "AA",
     distribution: "perceptual",
     hueShift: 0,
@@ -243,6 +248,13 @@ function parseArgs(argv: string[]): ParsedArgs {
         args.level = next === "AAA" ? "AAA" : "AA";
         i++;
         break;
+      case "--nontext":
+        args.nontext = true;
+        break;
+      case "--nontext-bg":
+        args.nontextBg = next;
+        i++;
+        break;
       case "--distribution":
         args.distribution = next === "linear" ? "linear" : "perceptual";
         i++;
@@ -298,6 +310,8 @@ OPTIONS
       --pairs            find the best WCAG-conformant fg/bg pair from the palette
       --matrix           print a full accessibility matrix (per-stop black/white text)
       --level <lvl>      AA | AAA (default: AA) — threshold for --pairs and --matrix
+      --nontext         audit the palette for WCAG 2.2 non-text (3:1) contrast
+      --nontext-bg <hx> background for --nontext (default: #ffffff)
       --cvd              simulate color vision deficiencies on the seed
       --theme            generate a coordinated light + dark theme pair (CSS)
       --distribution     linear | perceptual (default: perceptual)
@@ -324,6 +338,7 @@ EXAMPLES
   chroma-flow --import ":root { --brand-500: #6366f1; }" --infer-seed
   chroma-flow "#6366f1" --pairs --level AAA
   chroma-flow "#6366f1" --matrix
+  chroma-flow "#6366f1" --nontext --nontext-bg "#ffffff"
   chroma-flow "#6366f1" --theme
   chroma-flow "#f59e0b" --cvd
 `.trim();
@@ -552,6 +567,26 @@ function main() {
     for (const row of matrix) {
       console.log(
         `  ${String(row.stop).padStart(3)}  ${row.background}  black ${row.blackRatio.toFixed(2)}  white ${row.whiteRatio.toFixed(2)}  -> ${row.recommendedText}  [${row.band}]`
+      );
+    }
+    return;
+  }
+
+  // ── WCAG 2.2 non-text contrast ──
+  if (args.nontext) {
+    const bg = args.nontextBg ? normalizeHex(args.nontextBg) : "#ffffff";
+    const base = generatePalette(seed, {
+      distribution: args.distribution,
+      hueShift: args.hueShift,
+      chromaFalloff: args.chromaFalloff,
+    });
+    console.log(`WCAG 2.2 non-text contrast (3:1) for seed ${seed} on ${bg}\n`);
+    const rows = paletteNonTextMatrix(base, bg);
+    const passing = rows.filter((r) => r.passes).length;
+    console.log(`${passing}/${rows.length} stops pass as a UI component color on ${bg}\n`);
+    for (const row of rows) {
+      console.log(
+        `  ${String(row.stop).padStart(3)}  ${row.color}  ${row.ratio.toFixed(2)}  ${row.passes ? "PASS" : "FAIL"}`
       );
     }
     return;

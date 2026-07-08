@@ -11,6 +11,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Live web playground (in-repo, GitHub Pages)
 - Figma plugin
 
+## [0.8.0] - 2025-02-26
+
+### Added
+- 🎨 **WCAG 2.2 non-text contrast** (`checkNonTextContrast`, `passesNonText`,
+  `uiComponentContrast`, `focusIndicatorContrast`, `paletteNonTextMatrix`,
+  `NON_TEXT_THRESHOLD`) — checks the 3:1 contrast threshold for UI components
+  and graphical objects per WCAG 2.2 SC 1.4.11 (Non-text Contrast). Includes
+  helpers for button/input boundaries, focus indicators, and per-stop palette
+  audits against a background.
+- 🖥️ CLI flags `--nontext` and `--nontext-bg <hex>`.
+- `VERSION` bumped to `0.8.0`.
+
+### Changed
+- `NonTextContrastResult` type exported from root.
+- New `src/nontext.ts` module.
+
 ## [0.7.0] - 2025-02-19
 
 ### Added

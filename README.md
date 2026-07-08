@@ -43,6 +43,7 @@ ad-supported, or acquired.
 - 🧰 **Palette utilities** — interpolate midpoints, sort by lightness/chroma, reverse, or emit a CSS gradient.
 - 📥 **Palette import & seed inference** — parse an existing CSS / Tailwind / JSON palette back into a chroma-flow seed, so you can reverse-engineer a design system and keep tweaking.
 - ♿ **Accessible pair finder** — discover WCAG-conformant foreground/background pairs from a palette, audit every stop's text accessibility, and list the stops that pass a given level.
+- 🎨 **WCAG 2.2 non-text contrast** — check the 3:1 threshold for UI components, borders, icons, and focus indicators (SC 1.4.11).
 - 👁️ **Color-blind simulation** — protanopia, deuteranopia, tritanopia, achromatopsia.
 - 🎯 **Smart text-color suggestion** — auto-pick black or white text for any background.
 - 📤 **Eight export formats** — CSS variables, Tailwind config, JSON, SCSS, SVG swatch sheets, Android `colors.xml`, SwiftUI `Color`, Jetpack Compose `Color`.
@@ -157,6 +158,13 @@ const pair = findAccessiblePair(palette, "AAA");
 // { foreground: "#ffffff", background: "#0c033d", ratio: 19.16, passesAAA: true }
 const matrix = paletteAccessibilityMatrix(palette);
 // [{ stop: 50, recommendedText: "#000000", band: "AAA" }, …]
+
+// 14. (v0.8) Check WCAG 2.2 non-text contrast (3:1 for UI components).
+import { checkNonTextContrast, paletteNonTextMatrix } from "chroma-flow";
+checkNonTextContrast("#6366f1", "#ffffff", "border");
+// { ratio: 4.47, passes: true, band: "Pass", kind: "border" }
+paletteNonTextMatrix(palette, "#ffffff");
+// [{ stop: 50, color: "#e8f5ff", ratio: 1.11, passes: false }, …]
 ```
 
 ### CLI
@@ -212,6 +220,9 @@ chroma-flow --import ":root { --brand-500: #6366f1; }" --infer-seed
 # Find WCAG-conformant pairs and audit the palette (v0.7)
 chroma-flow "#6366f1" --pairs --level AAA
 chroma-flow "#6366f1" --matrix
+
+# Audit WCAG 2.2 non-text (3:1) contrast (v0.8)
+chroma-flow "#6366f1" --nontext --nontext-bg "#ffffff"
 
 # Simulate color vision deficiencies
 chroma-flow "#6366f1" --cvd
@@ -299,6 +310,7 @@ Please review our [Code of Conduct](CODE_OF_CONDUCT.md) before participating.
 - [x] ~~∆E76 and ∆E94 metrics~~ — shipped in v0.5.0
 - [x] ~~Palette import & seed inference~~ — shipped in v0.6.0
 - [x] ~~Accessible pair finder & palette matrix~~ — shipped in v0.7.0
+- [x] ~~WCAG 2.2 non-text contrast~~ — shipped in v0.8.0
 - [ ] Live web playground (in-repo, deployed to GitHub Pages)
 - [ ] ESM + CJS dual build
 - [ ] Figma plugin

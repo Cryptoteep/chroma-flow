@@ -18,6 +18,7 @@ tree-shakeable ESM exports and have zero runtime dependencies.
 - [Palette utilities](#palette-utilities)
 - [Palette import & seed inference](#palette-import--seed-inference)
 - [Accessible pairs](#accessible-pairs)
+- [WCAG 2.2 non-text contrast](#wcag-22-non-text-contrast)
 - [Exporters](#exporters)
 - [Types](#types)
 
@@ -466,6 +467,49 @@ either black or white text), in ascending order.
 
 ---
 
+## WCAG 2.2 non-text contrast
+
+Checks the 3:1 contrast threshold for UI components and graphical objects per
+WCAG 2.2 SC 1.4.11 (Non-text Contrast). Applies to input boundaries, icons,
+focus indicators, chart segments, and other non-text content.
+
+### `NON_TEXT_THRESHOLD`
+
+The WCAG 2.2 non-text contrast threshold: `3`.
+
+### `checkNonTextContrast(foreground, background, kind = "general")`
+
+Check whether a foreground (UI component / graphic) meets the 3:1 threshold
+against an adjacent background. `kind` is informational
+(`"border" | "icon" | "focus-indicator" | "graphic" | "general"`).
+
+```ts
+checkNonTextContrast("#6366f1", "#ffffff", "border");
+// { foreground: "#6366f1", background: "#ffffff", ratio: 4.47, passes: true, band: "Pass", kind: "border" }
+```
+
+### `passesNonText(foreground, background)`
+
+Boolean check for the 3:1 threshold.
+
+### `uiComponentContrast({ fill, border?, pageBackground })`
+
+Audit a UI component in one call: the fill against the page background, plus
+(if a border is given) the border against both the page background (outside)
+and the fill (inside). Returns an array of `NonTextContrastResult`.
+
+### `focusIndicatorContrast({ indicator, background })`
+
+Check a focus indicator's 3:1 contrast against its background (SC 1.4.13 /
+1.4.11).
+
+### `paletteNonTextMatrix(palette, background)`
+
+Audit every stop: report whether it meets 3:1 as a UI component color on the
+given background. Returns `{ stop, color, ratio, passes }[]` sorted by stop.
+
+---
+
 ## Exporters
 
 ### `exportPalette(palette, format, name?)`
@@ -494,4 +538,5 @@ All types are exported from the package root: `RGB`, `OKLCH`, `OKLab`,
 `CVDType`, `CVDPreview`, `ExportFormat`, `APHAResult`, `SemanticTheme`,
 `ThemeAudit`, `ThemePair`, `HarmonyScheme`, `HarmonyColor`, `Harmony`,
 `DeltaEResult`, `DeltaEMethod`, `RandomSeedOptions`, `SortOrder`,
-`InferredSeed`, `ImportedPalette`, `AccessiblePair`, `PaletteAccessibilityRow`.
+`InferredSeed`, `ImportedPalette`, `AccessiblePair`, `PaletteAccessibilityRow`,
+`NonTextContrastResult`.

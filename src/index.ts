@@ -33,6 +33,7 @@ export type {
   ImportedPalette,
   AccessiblePair,
   PaletteAccessibilityRow,
+  NonTextContrastResult,
 } from "./types";
 
 export {
@@ -161,5 +162,14 @@ export {
   accessibleStops,
 } from "./accessible";
 
+export {
+  NON_TEXT_THRESHOLD,
+  checkNonTextContrast,
+  passesNonText,
+  uiComponentContrast,
+  focusIndicatorContrast,
+  paletteNonTextMatrix,
+} from "./nontext";
+
 /** Library version. */
-export const VERSION = "0.7.0";
+export const VERSION = "0.8.0";
