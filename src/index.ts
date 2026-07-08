@@ -23,6 +23,10 @@ export type {
   SemanticTheme,
   ThemeAudit,
   ThemePair,
+  HarmonyScheme,
+  HarmonyColor,
+  Harmony,
+  DeltaEResult,
 } from "./types";
 
 export {
@@ -98,5 +102,19 @@ export {
   themeToJSON,
 } from "./theme";
 
+export {
+  generateHarmony,
+  generateAllHarmonies,
+  harmonyLabel,
+  harmonyDescription,
+} from "./harmony";
+
+export {
+  deltaE2000,
+  checkDeltaE,
+  formatDeltaE,
+  nearestColor,
+} from "./deltaE";
+
 /** Library version. */
-export const VERSION = "0.2.0";
+export const VERSION = "0.3.0";

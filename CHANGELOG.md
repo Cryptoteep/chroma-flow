@@ -11,6 +11,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Live web playground (in-repo, GitHub Pages)
 - Figma plugin
 
+## [0.3.0] - 2025-01-22
+
+### Added
+- 🎨 **Color harmonies** (`generateHarmony`, `generateAllHarmonies`, `harmonyLabel`,
+  `harmonyDescription`) — derive classic harmony schemes (complementary, analogous,
+  triadic, tetradic, split-complementary, monochromatic) from a single seed in OKLCH
+  hue space.
+- 📐 **Delta-E ∆E2000** (`deltaE2000`, `checkDeltaE`, `formatDeltaE`, `nearestColor`) —
+  the CIEDE2000 perceptual color-difference metric with a human-readable band and a
+  JND (just-noticeable difference) flag, plus a nearest-color finder.
+- 🖥️ CLI flags `--harmony <scheme>` and `--delta-e <hex>`.
+- `VERSION` bumped to `0.3.0`.
+
+### Changed
+- `HarmonyScheme`, `HarmonyColor`, `Harmony`, `DeltaEResult` types exported from root.
+- New `src/harmony.ts` and `src/deltaE.ts` modules.
+
 ## [0.2.0] - 2025-01-15
 
 ### Added

@@ -36,6 +36,12 @@ import {
   simulateAll,
   getStops,
   normalizeHex,
+  generateHarmony,
+  harmonyLabel,
+  harmonyDescription,
+  checkDeltaE,
+  formatDeltaE,
+  type HarmonyScheme,
 } from "../src/index";
 
 interface ParsedArgs {
@@ -46,6 +52,8 @@ interface ParsedArgs {
   apca: string | null;
   theme: boolean;
   cvd: boolean;
+  harmony: HarmonyScheme | null;
+  deltaE: string | null;
   distribution: "linear" | "perceptual";
   hueShift: number;
   chromaFalloff: number;
@@ -61,6 +69,8 @@ function parseArgs(argv: string[]): ParsedArgs {
     apca: null,
     theme: false,
     cvd: false,
+    harmony: null,
+    deltaE: null,
     distribution: "perceptual",
     hueShift: 0,
     chromaFalloff: 0.5,
@@ -100,6 +110,14 @@ function parseArgs(argv: string[]): ParsedArgs {
       case "--theme":
         args.theme = true;
         break;
+      case "--harmony":
+        args.harmony = next as HarmonyScheme;
+        i++;
+        break;
+      case "--delta-e":
+        args.deltaE = next;
+        i++;
+        break;
       case "--distribution":
         args.distribution = next === "linear" ? "linear" : "perceptual";
         i++;
@@ -134,6 +152,8 @@ OPTIONS
   -n, --name <name>      palette name used in exports (default: color)
   -c, --contrast <hex>   check WCAG 2.1 contrast against the seed color
       --apca <hex>       check APCA (WCAG 3 candidate) contrast against the seed
+      --harmony <scheme> complementary | analogous | triadic | tetradic | split-complementary | monochromatic
+      --delta-e <hex>    compute ∆E2000 color difference between the seed and a color
       --cvd              simulate color vision deficiencies on the seed
       --theme            generate a coordinated light + dark theme pair (CSS)
       --distribution     linear | perceptual (default: perceptual)
@@ -147,6 +167,8 @@ EXAMPLES
   chroma-flow #6366f1 --format swift --name brand
   chroma-flow "#10b981" --contrast "#ffffff"
   chroma-flow "#10b981" --apca "#ffffff"
+  chroma-flow "#6366f1" --harmony triadic
+  chroma-flow "#6366f1" --delta-e "#5b5cf0"
   chroma-flow "#6366f1" --theme
   chroma-flow "#f59e0b" --cvd
 `.trim();
@@ -218,6 +240,47 @@ function main() {
       `Body text ${result.passesBodyText ? "PASS" : "FAIL"}   Large text ${result.passesLargeText ? "PASS" : "FAIL"}   Non-text ${result.passesNonText ? "PASS" : "FAIL"}`
     );
     console.log(`Min size  ~${result.recommendedMinSize}pt for this contrast`);
+    return;
+  }
+
+  if (args.harmony) {
+    const validSchemes: HarmonyScheme[] = [
+      "complementary",
+      "analogous",
+      "triadic",
+      "tetradic",
+      "split-complementary",
+      "monochromatic",
+    ];
+    if (!validSchemes.includes(args.harmony)) {
+      console.error(`Error: unknown harmony "${args.harmony}".`);
+      console.error(`Valid schemes: ${validSchemes.join(", ")}`);
+      process.exit(1);
+    }
+    const harmony = generateHarmony(seed, args.harmony);
+    console.log(`${harmonyLabel(harmony.scheme)} harmony from ${seed}`);
+    console.log(harmonyDescription(harmony.scheme));
+    console.log("");
+    for (const c of harmony.colors) {
+      const offset = c.offset >= 0 ? `+${c.offset}°` : `${c.offset}°`;
+      console.log(`${c.role.padEnd(18)} ${c.hex}  (hue ${c.hue.toFixed(0).padStart(3)}°, ${offset})`);
+    }
+    return;
+  }
+
+  if (args.deltaE) {
+    let against: string;
+    try {
+      against = normalizeHex(args.deltaE);
+    } catch {
+      console.error(`Error: "${args.deltaE}" is not a valid hex color.`);
+      process.exit(1);
+    }
+    const result = checkDeltaE(seed, against);
+    console.log(`Delta-E   ${result.a} vs ${result.b}`);
+    console.log(`∆E2000    ${formatDeltaE(result.deltaE)}`);
+    console.log(`Band      ${result.band}`);
+    console.log(`Below JND ${result.belowJND ? "yes (< 2.3)" : "no (≥ 2.3)"}`);
     return;
   }
 

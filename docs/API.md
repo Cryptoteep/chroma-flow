@@ -12,6 +12,8 @@ tree-shakeable ESM exports and have zero runtime dependencies.
 - [Color vision deficiency](#color-vision-deficiency)
 - [Text color suggestion](#text-color-suggestion)
 - [Semantic themes](#semantic-themes)
+- [Color harmonies](#color-harmonies)
+- [Delta-E ∆E2000](#delta-e-e2000)
 - [Exporters](#exporters)
 - [Types](#types)
 
@@ -212,6 +214,76 @@ Emits `{ seed, light, dark }` JSON.
 
 ---
 
+## Color harmonies
+
+Derive classic color-harmony schemes from a single seed in OKLCH hue space,
+keeping the seed's lightness and chroma for a cohesive set.
+
+### `generateHarmony(seed, scheme)`
+
+Returns a `Harmony` with `seed`, `scheme`, and `colors` (each with `role`,
+`hue`, `offset`, `hex`).
+
+```ts
+const triad = generateHarmony("#6366f1", "triadic");
+triad.colors; // [{ role: "base", hex: "#6366f1" }, ...]
+```
+
+Supported schemes: `"complementary"`, `"analogous"`, `"triadic"`, `"tetradic"`,
+`"split-complementary"`, `"monochromatic"`.
+
+### `generateAllHarmonies(seed)`
+
+Returns all six schemes in one call as a `Record<HarmonyScheme, Harmony>`.
+
+### `harmonyLabel(scheme)` / `harmonyDescription(scheme)`
+
+Human-readable label and one-line description for a scheme.
+
+---
+
+## Delta-E ∆E2000
+
+The CIEDE2000 perceptual color-difference metric — the most accurate way to
+measure how different two colors appear to the human eye.
+
+### `deltaE2000(a, b)`
+
+Returns the ∆E2000 difference (0 = identical, ~2.3 = JND, ~100+ = very different).
+
+```ts
+deltaE2000("#6366f1", "#6366f1"); //  0
+deltaE2000("#6366f1", "#5b5cf0"); //  ~3.2  (noticeable)
+deltaE2000("#6366f1", "#f59e0b"); // ~62.6  (very different)
+```
+
+### `checkDeltaE(a, b)`
+
+Full check with a human-readable band and a JND flag:
+
+```ts
+{
+  deltaE: 3.17,
+  band: "noticeable",     // indistinguishable | barely noticeable | noticeable | clearly different | very different
+  belowJND: false,        // true when deltaE < 2.3
+}
+```
+
+### `formatDeltaE(deltaE)`
+
+Formats for display: `3.17 → "∆E 3.17"`.
+
+### `nearestColor(target, candidates)`
+
+Find the closest color in a list using ∆E2000. Returns `{ hex, deltaE }`.
+
+```ts
+nearestColor("#6366f1", ["#ef4444", "#3f37bb", "#10b981"]);
+// { hex: "#3f37bb", deltaE: 16.05 }
+```
+
+---
+
 ## Exporters
 
 ### `exportPalette(palette, format, name?)`
@@ -238,4 +310,5 @@ Single entry point. `format` ∈ `"css" | "tailwind" | "json" | "scss" | "svg" |
 All types are exported from the package root: `RGB`, `OKLCH`, `OKLab`,
 `PaletteStop`, `Palette`, `GenerateOptions`, `WCAGLevel`, `ContrastResult`,
 `CVDType`, `CVDPreview`, `ExportFormat`, `APHAResult`, `SemanticTheme`,
-`ThemeAudit`, `ThemePair`.
+`ThemeAudit`, `ThemePair`, `HarmonyScheme`, `HarmonyColor`, `Harmony`,
+`DeltaEResult`.

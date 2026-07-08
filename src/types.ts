@@ -204,3 +204,49 @@ export interface ThemeAudit {
   apcaLc: number;
   passesAA: boolean;
 }
+
+/** Supported classic color-harmony schemes. */
+export type HarmonyScheme =
+  | "complementary"
+  | "analogous"
+  | "triadic"
+  | "tetradic"
+  | "split-complementary"
+  | "monochromatic";
+
+/** A single color in a harmony set, with its angular offset from the seed. */
+export interface HarmonyColor {
+  /** Role label, e.g. "base", "complement", "analog-1". */
+  role: string;
+  /** Hue angle (degrees) of this color. */
+  hue: number;
+  /** Angular offset (degrees) from the seed hue. */
+  offset: number;
+  /** Hex color. */
+  hex: string;
+}
+
+/** Result of generating a color harmony from a seed. */
+export interface Harmony {
+  /** The seed color the harmony was derived from. */
+  seed: string;
+  /** The scheme that was generated. */
+  scheme: HarmonyScheme;
+  /** The colors in the harmony (seed first). */
+  colors: HarmonyColor[];
+}
+
+/** Result of a Delta-E ∆E2000 color-difference computation. */
+export interface DeltaEResult {
+  /** First color (hex). */
+  a: string;
+  /** Second color (hex). */
+  b: string;
+  /** The ∆E2000 difference (0 = identical, ~100+ = very different). */
+  deltaE: number;
+  /** Human-readable perceptual difference band. */
+  band: "indistinguishable" | "barely noticeable" | "noticeable" | "clearly different" | "very different";
+  /** Whether the difference is below the JND (just-noticeable difference, ~2.3). */
+  belowJND: boolean;
+}
+
