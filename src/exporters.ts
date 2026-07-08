@@ -122,10 +122,72 @@ ${swatches}
 </svg>\n`;
 }
 
+/**
+ * Export a palette as a Swift `Color` extension, usable in iOS / SwiftUI.
+ * Each stop becomes a static `Color` property with normalized RGB floats.
+ */
+export function toSwift(palette: Palette, name = "brand"): string {
+  const props = STOP_ORDER.map((stop) => {
+    const hex = palette[stop as 50];
+    const { r, g, b } = hexToRGBInline(hex);
+    return `    public static let ${name}${stop} = Color(red: ${r}, green: ${g}, blue: ${b})`;
+  }).join("\n");
+  return `import SwiftUI
+
+extension Color {
+${props}
+}
+`;
+}
+
+/**
+ * Export a palette as a Jetpack Compose `Color` object (Kotlin),
+ * usable in Android Compose UIs.
+ */
+export function toCompose(palette: Palette, name = "Brand"): string {
+  const props = STOP_ORDER.map((stop) => {
+    const hex = palette[stop as 50];
+    const { r, g, b, a } = hexToRGBInline(hex);
+    return `    val ${name}${stop} = Color(${r}f, ${g}f, ${b}f, ${a}f)`;
+  }).join("\n");
+  return `import androidx.compose.ui.graphics.Color
+
+object ${name}Colors {
+${props}
+}
+`;
+}
+
+/** Convert #aabbcc to normalized {r,g,b,a} floats in 0–1 for Swift/Compose. */
+function hexToRGBInline(hex: string): {
+  r: number;
+  g: number;
+  b: number;
+  a: number;
+} {
+  const h = hex.replace("#", "");
+  const num = parseInt(h, 16);
+  const round5 = (n: number) => Math.round(n * 1e5) / 1e5;
+  return {
+    r: round5(((num >> 16) & 0xff) / 255),
+    g: round5(((num >> 8) & 0xff) / 255),
+    b: round5((num & 0xff) / 255),
+    a: 1,
+  };
+}
+
 /** Export a palette in the requested format. */
 export function exportPalette(
   palette: Palette,
-  format: "css" | "tailwind" | "json" | "scss" | "svg" | "android-xml",
+  format:
+    | "css"
+    | "tailwind"
+    | "json"
+    | "scss"
+    | "svg"
+    | "android-xml"
+    | "swift"
+    | "compose",
   name = "color"
 ): string {
   switch (format) {
@@ -141,6 +203,10 @@ export function exportPalette(
       return toSVG(palette, name);
     case "android-xml":
       return toAndroidXML(palette, name);
+    case "swift":
+      return toSwift(palette, name);
+    case "compose":
+      return toCompose(palette, name);
     default:
       throw new Error(`chroma-flow: unknown export format "${format}"`);
   }

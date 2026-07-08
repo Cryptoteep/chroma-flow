@@ -35,9 +35,11 @@ ad-supported, or acquired.
 
 - 🧪 **OKLCH-based generation** — perceptually uniform ramps that look balanced to the human eye.
 - ♿ **WCAG 2.1 contrast checking** — AA / AAA conformance for normal and large text.
+- 📏 **APCA contrast (WCAG 3 candidate)** — signed perceptual Lc values, more accurate than WCAG 2.1 for dark themes.
+- 🌗 **Light + dark theme generation** — a coordinated semantic theme pair (background, surface, text, primary, accent, success/warning/danger) from one seed, with a per-role WCAG + APCA audit.
 - 👁️ **Color-blind simulation** — protanopia, deuteranopia, tritanopia, achromatopsia.
 - 🎯 **Smart text-color suggestion** — auto-pick black or white text for any background.
-- 📤 **Multi-format export** — CSS variables, Tailwind config, JSON, SCSS, SVG swatch sheets, Android `colors.xml`.
+- 📤 **Eight export formats** — CSS variables, Tailwind config, JSON, SCSS, SVG swatch sheets, Android `colors.xml`, SwiftUI `Color`, Jetpack Compose `Color`.
 - 🖥️ **CLI + library** — use it in code or from the terminal.
 - 🪶 **Zero runtime dependencies** — auditable in an afternoon, ships tiny.
 - 🌲 **Tree-shakeable ESM** — import only what you use.
@@ -97,6 +99,19 @@ console.log(result.passesAAANormal); // true
 simulateAll(palette[500]).forEach((p) =>
   console.log(p.type, p.hex)
 );
+
+// 6. (v0.2) Check APCA perceptual contrast (WCAG 3 candidate).
+import { checkAPCA } from "chroma-flow";
+const apca = checkAPCA("#ffffff", palette[600]);
+console.log(apca.Lc);               // -87.6  (negative = light text on dark)
+console.log(apca.passesBodyText);   // true   (|Lc| ≥ 75)
+
+// 7. (v0.2) Generate a coordinated light + dark theme.
+import { generateTheme, themeToCSS } from "chroma-flow";
+const theme = generateTheme("#6366f1");
+console.log(theme.light.primary);   // "#3f37bb"
+console.log(theme.dark.primary);    // "#8b95ff"
+const themeCss = themeToCSS(theme, "brand"); // :root {…} .dark {…}
 ```
 
 ### CLI
@@ -113,8 +128,18 @@ chroma-flow "#6366f1"
 # Export as CSS variables
 chroma-flow "#6366f1" --format css --name primary
 
-# Check contrast against a foreground color
+# Export as SwiftUI / Jetpack Compose (v0.2)
+chroma-flow "#6366f1" --format swift --name brand
+chroma-flow "#6366f1" --format compose --name Brand
+
+# Check WCAG 2.1 contrast against a foreground color
 chroma-flow "#f59e0b" --contrast "#000000"
+
+# Check APCA perceptual contrast (v0.2)
+chroma-flow "#10b981" --apca "#ffffff"
+
+# Generate a coordinated light + dark theme pair (v0.2)
+chroma-flow "#6366f1" --theme --name brand
 
 # Simulate color vision deficiencies
 chroma-flow "#6366f1" --cvd
@@ -193,12 +218,14 @@ Please review our [Code of Conduct](CODE_OF_CONDUCT.md) before participating.
 
 ## 🗺️ Roadmap
 
+- [x] ~~APCA contrast support (WCAG 3 candidate)~~ — shipped in v0.2.0
+- [x] ~~Theme generation (light + dark from one seed)~~ — shipped in v0.2.0
+- [x] ~~Swift + Jetpack Compose exporters~~ — shipped in v0.2.0
+- [ ] Live web playground (in-repo, deployed to GitHub Pages)
 - [ ] ESM + CJS dual build
-- [ ] APCA contrast support (WCAG 3 candidate)
-- [ ] Live web playground (in-repo, no backend)
 - [ ] Figma plugin
-- [ ] Theme generation (light + dark from one seed)
 - [ ] Delta-E ∆E2000 color difference helper
+- [ ] Auto-derivation of complementary / triadic / analogous seeds
 
 ## 📄 License
 

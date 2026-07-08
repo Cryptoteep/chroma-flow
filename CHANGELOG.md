@@ -8,10 +8,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Planned
-- APCA (WCAG 3 candidate) contrast support
-- Live web playground (in-repo)
+- Live web playground (in-repo, GitHub Pages)
 - Figma plugin
-- Light + dark theme generation from one seed
+
+## [0.2.0] - 2025-01-15
+
+### Added
+- 📏 **APCA contrast** (`apcaContrast`, `checkAPCA`, `formatLc`, `suggestTextColorAPCA`) —
+  the WCAG 3 candidate perceptual contrast algorithm. Returns a signed Lc value
+  (positive = dark text on light bg, negative = light on dark) and conformance
+  helpers for body / large / non-text thresholds.
+- 🌗 **Semantic theme generation** (`generateTheme`, `themeToCSS`, `themeToJSON`) —
+  derives a coordinated light + dark theme pair from one seed, choosing semantic
+  roles (background, surface, text, primary, accent, success, warning, danger)
+  from the ramp and auditing WCAG + APCA on every text role.
+- 🍎 **Swift / SwiftUI exporter** (`toSwift`) — palette as a `Color` extension.
+- 🤖 **Jetpack Compose exporter** (`toCompose`) — palette as a Kotlin `Color` object.
+- 🖥️ CLI flags `--apca` and `--theme`; new `--format swift` and `--format compose`.
+- `VERSION` bumped to `0.2.0`.
+
+### Changed
+- `ExportFormat` now includes `"swift"` and `"compose"`.
+- `exportPalette` accepts the two new formats.
 
 ## [0.1.0] - 2025-01-01
 

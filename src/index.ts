@@ -19,6 +19,10 @@ export type {
   CVDType,
   CVDPreview,
   ExportFormat,
+  APHAResult,
+  SemanticTheme,
+  ThemeAudit,
+  ThemePair,
 } from "./types";
 
 export {
@@ -76,8 +80,23 @@ export {
   toSCSS,
   toSVG,
   toAndroidXML,
+  toSwift,
+  toCompose,
   exportPalette,
 } from "./exporters";
 
+export {
+  apcaContrast,
+  checkAPCA,
+  formatLc,
+  suggestTextColorAPCA,
+} from "./apca";
+
+export {
+  generateTheme,
+  themeToCSS,
+  themeToJSON,
+} from "./theme";
+
 /** Library version. */
-export const VERSION = "0.1.0";
+export const VERSION = "0.2.0";
