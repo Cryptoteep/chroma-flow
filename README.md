@@ -38,7 +38,7 @@ ad-supported, or acquired.
 - 📏 **APCA contrast (WCAG 3 candidate)** — signed perceptual Lc values, more accurate than WCAG 2.1 for dark themes.
 - 🌗 **Light + dark theme generation** — a coordinated semantic theme pair (background, surface, text, primary, accent, success/warning/danger) from one seed, with a per-role WCAG + APCA audit.
 - 🎨 **Color harmonies** — complementary, analogous, triadic, tetradic, split-complementary, and monochromatic schemes derived from a seed.
-- 📐 **Delta-E ∆E2000** — the perceptual color-difference metric with a human-readable band and a nearest-color finder.
+- 📐 **Delta-E ∆E76 / ∆E94 / ∆E2000** — three CIE color-difference metrics (from fast Euclidean to perceptually-accurate CIEDE2000) with a human-readable band and a nearest-color finder.
 - 🎛️ **Color manipulation** — mix, lighten, darken, saturate, rotate hue, complement, invert, and random-seed generation in OKLCH.
 - 🧰 **Palette utilities** — interpolate midpoints, sort by lightness/chroma, reverse, or emit a CSS gradient.
 - 👁️ **Color-blind simulation** — protanopia, deuteranopia, tritanopia, achromatopsia.
@@ -123,9 +123,10 @@ const triad = generateHarmony("#6366f1", "triadic");
 triad.colors.forEach((c) => console.log(c.role, c.hex)); // base, triad-1, triad-2
 
 // 9. (v0.3) Measure the perceptual difference between two colors.
-import { checkDeltaE, nearestColor } from "chroma-flow";
+import { checkDeltaE, nearestColor, deltaE76 } from "chroma-flow";
 const d = checkDeltaE("#6366f1", "#5b5cf0"); // { deltaE: 3.17, band: "noticeable", belowJND: false }
 const nearest = nearestColor("#6366f1", ["#ef4444", "#3f37bb", "#10b981"]);
+deltaE76("#6366f1", "#5b5cf0"); // ~6.71 (v0.5 — the simpler ∆E76 metric)
 
 // 10. (v0.4) Manipulate colors in OKLCH.
 import { mixColors, lighten, rotateHue, randomSeed } from "chroma-flow";
@@ -173,6 +174,8 @@ chroma-flow "#6366f1" --harmony triadic
 
 # Measure the perceptual difference between two colors (v0.3)
 chroma-flow "#6366f1" --delta-e "#5b5cf0"
+# …using the simpler ∆E76 metric (v0.5)
+chroma-flow "#6366f1" --delta-e "#5b5cf0" --delta-method 76
 
 # Mix, rotate, complement, lighten (v0.4)
 chroma-flow "#6366f1" --mix "#f59e0b" --mix-amount 0.3
@@ -269,6 +272,7 @@ Please review our [Code of Conduct](CODE_OF_CONDUCT.md) before participating.
 - [x] ~~Color harmonies (complementary / triadic / analogous …)~~ — shipped in v0.3.0
 - [x] ~~Delta-E ∆E2000 color difference helper~~ — shipped in v0.3.0
 - [x] ~~Color manipulation & palette utilities~~ — shipped in v0.4.0
+- [x] ~~∆E76 and ∆E94 metrics~~ — shipped in v0.5.0
 - [ ] Live web playground (in-repo, deployed to GitHub Pages)
 - [ ] ESM + CJS dual build
 - [ ] Figma plugin

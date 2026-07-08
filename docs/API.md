@@ -244,24 +244,38 @@ Human-readable label and one-line description for a scheme.
 
 ---
 
-## Delta-E ∆E2000
+## Delta-E (∆E76 / ∆E94 / ∆E2000)
 
-The CIEDE2000 perceptual color-difference metric — the most accurate way to
-measure how different two colors appear to the human eye.
+chroma-flow ships three CIE color-difference metrics, from simplest to most
+perceptually accurate:
 
-### `deltaE2000(a, b)`
+- **∆E76** — straight Euclidean distance in CIE Lab. Fast, but overestimates
+  differences in saturated colors.
+- **∆E94** — adds chroma/hue weighting (graphic-arts factors). A good middle ground.
+- **∆E2000** (CIEDE2000) — the most perceptually accurate. Recommended default.
 
-Returns the ∆E2000 difference (0 = identical, ~2.3 = JND, ~100+ = very different).
+### `deltaE2000(a, b)` / `deltaE94(a, b)` / `deltaE76(a, b)`
+
+Each returns the ∆E for its method (0 = identical, ~2.3 = JND for ∆E2000).
 
 ```ts
-deltaE2000("#6366f1", "#6366f1"); //  0
-deltaE2000("#6366f1", "#5b5cf0"); //  ~3.2  (noticeable)
-deltaE2000("#6366f1", "#f59e0b"); // ~62.6  (very different)
+deltaE76("#6366f1", "#5b5cf0");   //  ~6.71  (overestimates)
+deltaE94("#6366f1", "#5b5cf0");   //  ~3.26
+deltaE2000("#6366f1", "#5b5cf0"); //  ~3.17  (most accurate)
+```
+
+### `deltaE(a, b, method = "2000")`
+
+Dispatcher that selects the method. `method` ∈ `"76" | "94" | "2000"`.
+
+```ts
+deltaE("#6366f1", "#5b5cf0");            // ∆E2000 (default)
+deltaE("#6366f1", "#5b5cf0", "76");      // ∆E76
 ```
 
 ### `checkDeltaE(a, b)`
 
-Full check with a human-readable band and a JND flag:
+Full ∆E2000 check with a human-readable band and a JND flag:
 
 ```ts
 {
@@ -275,12 +289,14 @@ Full check with a human-readable band and a JND flag:
 
 Formats for display: `3.17 → "∆E 3.17"`.
 
-### `nearestColor(target, candidates)`
+### `nearestColor(target, candidates, method = "2000")`
 
-Find the closest color in a list using ∆E2000. Returns `{ hex, deltaE }`.
+Find the closest color in a list using the requested ∆E method. Returns
+`{ hex, deltaE }`.
 
 ```ts
-nearestColor("#6366f1", ["#ef4444", "#3f37bb", "#10b981"]);
+nearestColor("#6366f1", ["#ef4444", "#3f37bb", "#10b981"]);           // ∆E2000
+nearestColor("#6366f1", ["#ef4444", "#3f37bb", "#10b981"], "76");    // ∆E76
 // { hex: "#3f37bb", deltaE: 16.05 }
 ```
 
@@ -382,4 +398,4 @@ All types are exported from the package root: `RGB`, `OKLCH`, `OKLab`,
 `PaletteStop`, `Palette`, `GenerateOptions`, `WCAGLevel`, `ContrastResult`,
 `CVDType`, `CVDPreview`, `ExportFormat`, `APHAResult`, `SemanticTheme`,
 `ThemeAudit`, `ThemePair`, `HarmonyScheme`, `HarmonyColor`, `Harmony`,
-`DeltaEResult`, `RandomSeedOptions`, `SortOrder`.
+`DeltaEResult`, `DeltaEMethod`, `RandomSeedOptions`, `SortOrder`.

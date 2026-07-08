@@ -41,6 +41,7 @@ import {
   harmonyDescription,
   checkDeltaE,
   formatDeltaE,
+  deltaE,
   mixColors,
   lighten,
   darken,
@@ -54,6 +55,7 @@ import {
   reversePalette,
   paletteToGradient,
   type HarmonyScheme,
+  type DeltaEMethod,
 } from "../src/index";
 
 interface ParsedArgs {
@@ -66,6 +68,7 @@ interface ParsedArgs {
   cvd: boolean;
   harmony: HarmonyScheme | null;
   deltaE: string | null;
+  deltaMethod: DeltaEMethod;
   mix: string | null;
   mixAmount: number;
   random: boolean;
@@ -96,6 +99,7 @@ function parseArgs(argv: string[]): ParsedArgs {
     cvd: false,
     harmony: null,
     deltaE: null,
+    deltaMethod: "2000",
     mix: null,
     mixAmount: 0.5,
     random: false,
@@ -154,6 +158,10 @@ function parseArgs(argv: string[]): ParsedArgs {
         break;
       case "--delta-e":
         args.deltaE = next;
+        i++;
+        break;
+      case "--delta-method":
+        args.deltaMethod = (next === "76" || next === "94" || next === "2000") ? next as DeltaEMethod : "2000";
         i++;
         break;
       case "--mix":
@@ -237,7 +245,8 @@ OPTIONS
   -c, --contrast <hex>   check WCAG 2.1 contrast against the seed color
       --apca <hex>       check APCA (WCAG 3 candidate) contrast against the seed
       --harmony <scheme> complementary | analogous | triadic | tetradic | split-complementary | monochromatic
-      --delta-e <hex>    compute ∆E2000 color difference between the seed and a color
+      --delta-e <hex>    compute ∆E color difference between the seed and a color
+      --delta-method     76 | 94 | 2000 (default: 2000)
       --mix <hex>        mix the seed with another color (use --mix-amount to set the ratio)
       --mix-amount <t>   0–1, mix ratio (default 0.5)
       --random           generate a random seed color (ignores the hex argument)
@@ -267,6 +276,7 @@ EXAMPLES
   chroma-flow "#10b981" --apca "#ffffff"
   chroma-flow "#6366f1" --harmony triadic
   chroma-flow "#6366f1" --delta-e "#5b5cf0"
+  chroma-flow "#6366f1" --delta-e "#5b5cf0" --delta-method 76
   chroma-flow "#6366f1" --mix "#f59e0b" --mix-amount 0.3
   chroma-flow "#6366f1" --rotate 120
   chroma-flow "#6366f1" --complement
@@ -393,11 +403,15 @@ function main() {
       console.error(`Error: "${args.deltaE}" is not a valid hex color.`);
       process.exit(1);
     }
-    const result = checkDeltaE(seed, against);
-    console.log(`Delta-E   ${result.a} vs ${result.b}`);
-    console.log(`∆E2000    ${formatDeltaE(result.deltaE)}`);
-    console.log(`Band      ${result.band}`);
-    console.log(`Below JND ${result.belowJND ? "yes (< 2.3)" : "no (≥ 2.3)"}`);
+    const value = deltaE(seed, against, args.deltaMethod);
+    console.log(`Delta-E   ${seed} vs ${against}`);
+    console.log(`Method    ∆E${args.deltaMethod}`);
+    console.log(`Value     ${formatDeltaE(value)}`);
+    if (args.deltaMethod === "2000") {
+      const result = checkDeltaE(seed, against);
+      console.log(`Band      ${result.band}`);
+      console.log(`Below JND ${result.belowJND ? "yes (< 2.3)" : "no (≥ 2.3)"}`);
+    }
     return;
   }
 

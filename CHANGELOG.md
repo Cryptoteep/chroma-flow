@@ -11,6 +11,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Live web playground (in-repo, GitHub Pages)
 - Figma plugin
 
+## [0.5.0] - 2025-02-05
+
+### Added
+- 📐 **∆E76 and ∆E94** — `deltaE76`, `deltaE94`, and a `deltaE(a, b, method)`
+  dispatcher join the existing ∆E2000. ∆E76 is the simple Euclidean Lab
+  distance (fast, overestimates saturated colors); ∆E94 adds chroma/hue
+  weighting; ∆E2000 remains the most accurate. `nearestColor` now accepts a
+  method argument.
+- 🖥️ CLI flag `--delta-method 76|94|2000` (default 2000) for `--delta-e`.
+- `DeltaEMethod` type exported from root.
+- `VERSION` bumped to `0.5.0`.
+
 ## [0.4.0] - 2025-01-29
 
 ### Added

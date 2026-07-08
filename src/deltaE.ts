@@ -146,6 +146,77 @@ export function deltaE2000(a: string, b: string): number {
   return dE;
 }
 
+/**
+ * Compute the CIE76 (∆E76) color difference — the original, simplest metric.
+ * This is the straight Euclidean distance between the two colors in CIE Lab
+ * space: √((ΔL)² + (Δa)² + (Δb)²).
+ *
+ * It is less perceptually accurate than ∆E94 or ∆E2000 (it overestimates
+ * differences in saturated colors), but is fast and still widely used as a
+ * baseline.
+ *
+ * @license MIT
+ */
+export function deltaE76(a: string, b: string): number {
+  const lab1 = hexToLab(a);
+  const lab2 = hexToLab(b);
+  const dL = lab1.l - lab2.l;
+  const da = lab1.a - lab2.a;
+  const db = lab1.b - lab2.b;
+  return Math.sqrt(dL * dL + da * da + db * db);
+}
+
+/**
+ * Compute the CIE94 (∆E94) color difference — an improvement over ∆E76 that
+ * weights lightness, chroma, and hue differences to better match perception.
+ * Uses the graphic-arts parametric weighting factors (kL=1, kC=1, kH=1,
+ * K1=0.045, K2=0.015).
+ *
+ * @license MIT
+ */
+export function deltaE94(a: string, b: string): number {
+  const lab1 = hexToLab(a);
+  const lab2 = hexToLab(b);
+  const { l: L1, a: a1, b: b1 } = lab1;
+  const { l: L2, a: a2, b: b2 } = lab2;
+
+  const dL = L1 - L2;
+  const C1 = Math.sqrt(a1 * a1 + b1 * b1);
+  const C2 = Math.sqrt(a2 * a2 + b2 * b2);
+  const dC = C1 - C2;
+  const da = a1 - a2;
+  const db = b1 - b2;
+  // ΔH² = Δa² + Δb² − ΔC²  (clamped to ≥ 0)
+  const dH2 = Math.max(0, da * da + db * db - dC * dC);
+
+  const SL = 1;
+  const SC = 1 + 0.045 * C1;
+  const SH = 1 + 0.015 * C1;
+
+  return Math.sqrt(
+    Math.pow(dL / SL, 2) + Math.pow(dC / SC, 2) + dH2 / (SH * SH)
+  );
+}
+
+/** All supported ∆E methods. */
+export type DeltaEMethod = "76" | "94" | "2000";
+
+/**
+ * Compute the ∆E color difference using the requested method
+ * ("76" | "94" | "2000"). Defaults to "2000" (most perceptually accurate).
+ */
+export function deltaE(a: string, b: string, method: DeltaEMethod = "2000"): number {
+  switch (method) {
+    case "76":
+      return deltaE76(a, b);
+    case "94":
+      return deltaE94(a, b);
+    case "2000":
+    default:
+      return deltaE2000(a, b);
+  }
+}
+
 /** Classify a ∆E value into a human-readable perceptual band. */
 function bandFor(deltaE: number): DeltaEResult["band"] {
   if (deltaE < 1) return "indistinguishable";
@@ -175,16 +246,17 @@ export function formatDeltaE(deltaE: number): string {
 }
 
 /**
- * Find the closest color in a list to a target, using ∆E2000.
- * Returns the hex of the nearest match and the ∆E.
+ * Find the closest color in a list to a target, using the requested ∆E method
+ * (default ∆E2000). Returns the hex of the nearest match and the ∆E.
  */
 export function nearestColor(
   target: string,
-  candidates: string[]
+  candidates: string[],
+  method: DeltaEMethod = "2000"
 ): { hex: string; deltaE: number } {
   let best = { hex: candidates[0] ?? "#000000", deltaE: Infinity };
   for (const c of candidates) {
-    const d = deltaE2000(target, c);
+    const d = deltaE(target, c, method);
     if (d < best.deltaE) best = { hex: c, deltaE: d };
   }
   return best;
