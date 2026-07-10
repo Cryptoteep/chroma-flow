@@ -7,6 +7,8 @@
 A zero-dependency TypeScript library & CLI that generates perceptually-uniform,
 WCAG-compliant, color-blind-safe color palettes using the modern **OKLCH** color space.
 
+**English** | [हिन्दी](README.hi.md)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue.svg)](https://www.typescriptlang.org/)
 [![Zero Dependencies](https://img.shields.io/badge/dependencies-0-success.svg)](#)

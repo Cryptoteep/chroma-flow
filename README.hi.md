@@ -7,11 +7,13 @@
 एक शून्य-निर्भरता वाली TypeScript लाइब्रेरी और CLI जो आधुनिक **OKLCH** रंग स्पेस का उपयोग करके अवधारणात्मक रूप से एकसमान,
 WCAG-अनुपालक और रंग-अंधता-सुरक्षित रंग पटल (पैलेट) उत्पन्न करती है।
 
+[English](README.md) | **हिन्दी**
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue.svg)](https://www.typescriptlang.org/)
 [![Zero Dependencies](https://img.shields.io/badge/dependencies-0-success.svg)](#)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-[![Good First Issues](https://img.shields.io/github/issues/Cryptoteep/chroma-flow/good%20first%20issue?label=good%20first%20issue&color=7057ff)](https://github.com/Cryptoteep/chroma-flow/issues?q=is%3Aissue+is+open+label%3A%22good+first+issue%22)
+[![Good First Issues](https://img.shields.io/github/issues/Cryptoteep/chroma-flow/good%20first%20issue?label=good%20first%20issue&color=7057ff)](https://github.com/Cryptoteep/chroma-flow/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
 
 </div>
 
